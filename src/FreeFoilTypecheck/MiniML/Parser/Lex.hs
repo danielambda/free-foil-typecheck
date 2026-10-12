@@ -4,7 +4,7 @@
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
 {-# LANGUAGE CPP #-}
 {-# LINE 4 "Lex.x" #-}
-{-# OPTIONS -fno-warn-incomplete-patterns #-}
+{-# OPTIONS -Wno-incomplete-patterns #-}
 {-# OPTIONS_GHC -w #-}
 
 {-# LANGUAGE PatternSynonyms #-}
@@ -19,66 +19,215 @@ import Data.Function (on)
 import Data.Word     (Word8)
 #include "ghcconfig.h"
 import qualified Data.Array
+import qualified Data.Char
 alex_tab_size :: Int
 alex_tab_size = 8
 alex_base :: Data.Array.Array Int Int
 alex_base = Data.Array.listArray (0 :: Int, 11)
   [ -8
-  , 140
   , -42
-  , 135
-  , -41
-  , -46
-  , 208
-  , 109
+  , 140
+  , 239
+  , -171
   , 0
-  , -169
-  , 352
-  , 410
+  , 109
+  , 234
+  , 370
+  , -45
+  , -40
+  , 365
   ]
 
 alex_table :: Data.Array.Array Int Int
-alex_table = Data.Array.listArray (0 :: Int, 665)
+alex_table = Data.Array.listArray (0 :: Int, 625)
   [ 0
-  , 7
-  , 7
-  , 7
-  , 7
-  , 7
-  , 2
-  , 2
-  , 2
-  , 2
-  , 2
-  , 2
-  , 2
-  , 2
-  , 2
-  , 2
-  , 8
-  , 8
-  , 8
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 7
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 8
-  , 8
-  , 8
-  , 8
-  , 8
+  , 6
+  , 6
+  , 6
+  , 6
+  , 6
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
   , 5
+  , 5
+  , 5
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 6
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 5
+  , 5
+  , 5
+  , 5
+  , 5
+  , 9
+  , 5
+  , 0
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 1
+  , 10
+  , 0
+  , 0
+  , 5
+  , 0
   , 8
   , 0
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 5
+  , 0
+  , 5
+  , 0
+  , 5
+  , 0
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 5
+  , 5
+  , 5
+  , 6
+  , 6
+  , 6
+  , 6
+  , 6
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 6
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 2
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 7
   , 2
   , 2
   , 2
@@ -92,500 +241,361 @@ alex_table = Data.Array.listArray (0 :: Int, 665)
   , 4
   , 0
   , 0
-  , 8
+  , 0
+  , 0
+  , 0
+  , 0
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 0
+  , 0
+  , 0
+  , 0
+  , 2
+  , 0
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 0
+  , 0
+  , 0
+  , 0
+  , 3
+  , 7
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 0
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 0
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 2
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
   , 0
   , 11
-  , 0
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 8
-  , 0
-  , 8
-  , 0
-  , 8
-  , 0
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 8
-  , 8
-  , 8
-  , 7
-  , 7
-  , 7
-  , 7
-  , 7
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 7
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 1
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 6
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 9
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 0
-  , 0
-  , 0
-  , 0
-  , 1
-  , 0
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 0
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 0
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 6
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 0
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 0
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 1
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 0
-  , 0
-  , 0
-  , 0
-  , 10
-  , 0
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 10
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 0
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 0
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 0
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
+  , 3
   , 3
   , 0
   , 0
@@ -595,56 +605,7 @@ alex_table = Data.Array.listArray (0 :: Int, 665)
   , 0
   , 0
   , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 3
+  , 11
   , 0
   , 0
   , 0
@@ -708,7 +669,7 @@ alex_table = Data.Array.listArray (0 :: Int, 665)
   ]
 
 alex_check :: Data.Array.Array Int Int
-alex_check = Data.Array.listArray (0 :: Int, 665)
+alex_check = Data.Array.listArray (0 :: Int, 625)
   [ -1
   , 9
   , 10
@@ -725,9 +686,9 @@ alex_check = Data.Array.listArray (0 :: Int, 665)
   , 55
   , 56
   , 57
+  , 187
   , 62
   , 58
-  , 187
   , -1
   , -1
   , -1
@@ -972,70 +933,6 @@ alex_check = Data.Array.listArray (0 :: Int, 665)
   , 120
   , 121
   , 122
-  , 128
-  , 129
-  , 130
-  , 131
-  , 132
-  , 133
-  , 134
-  , 135
-  , 136
-  , 137
-  , 138
-  , 139
-  , 140
-  , 141
-  , 142
-  , 143
-  , 144
-  , 145
-  , 146
-  , 147
-  , 148
-  , 149
-  , 150
-  , -1
-  , 152
-  , 153
-  , 154
-  , 155
-  , 156
-  , 157
-  , 158
-  , 159
-  , 160
-  , 161
-  , 162
-  , 163
-  , 164
-  , 165
-  , 166
-  , 167
-  , 168
-  , 169
-  , 170
-  , 171
-  , 172
-  , 173
-  , 174
-  , 175
-  , 176
-  , 177
-  , 178
-  , 179
-  , 180
-  , 181
-  , 182
-  , -1
-  , 184
-  , 185
-  , 186
-  , 187
-  , 188
-  , 189
-  , 190
-  , 191
   , -1
   , -1
   , -1
@@ -1044,71 +941,22 @@ alex_check = Data.Array.listArray (0 :: Int, 665)
   , -1
   , -1
   , -1
-  , 195
-  , 128
-  , 129
-  , 130
-  , 131
-  , 132
-  , 133
-  , 134
-  , 135
-  , 136
-  , 137
-  , 138
-  , 139
-  , 140
-  , 141
-  , 142
-  , 143
-  , 144
-  , 145
-  , 146
-  , 147
-  , 148
-  , 149
-  , 150
   , -1
-  , 152
-  , 153
-  , 154
-  , 155
-  , 156
-  , 157
-  , 158
-  , 159
-  , 160
-  , 161
-  , 162
-  , 163
-  , 164
-  , 165
-  , 166
-  , 167
-  , 168
-  , 169
-  , 170
-  , 171
-  , 172
-  , 173
-  , 174
-  , 175
-  , 176
-  , 177
-  , 178
-  , 179
-  , 180
-  , 181
-  , 182
   , -1
-  , 184
-  , 185
-  , 186
-  , 187
-  , 188
-  , 189
-  , 190
-  , 191
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
   , 48
   , 49
   , 50
@@ -1157,7 +1005,7 @@ alex_check = Data.Array.listArray (0 :: Int, 665)
   , -1
   , -1
   , 95
-  , -1
+  , 195
   , 97
   , 98
   , 99
@@ -1184,6 +1032,79 @@ alex_check = Data.Array.listArray (0 :: Int, 665)
   , 120
   , 121
   , 122
+  , 128
+  , 129
+  , 130
+  , 131
+  , 132
+  , 133
+  , 134
+  , 135
+  , 136
+  , 137
+  , 138
+  , 139
+  , 140
+  , 141
+  , 142
+  , 143
+  , 144
+  , 145
+  , 146
+  , 147
+  , 148
+  , 149
+  , 150
+  , -1
+  , 152
+  , 153
+  , 154
+  , 155
+  , 156
+  , 157
+  , 158
+  , 159
+  , 160
+  , 161
+  , 162
+  , 163
+  , 164
+  , 165
+  , 166
+  , 167
+  , 168
+  , 169
+  , 170
+  , 171
+  , 172
+  , 173
+  , 174
+  , 175
+  , 176
+  , 177
+  , 178
+  , 179
+  , 180
+  , 181
+  , 182
+  , -1
+  , 184
+  , 185
+  , 186
+  , 187
+  , 188
+  , 189
+  , 190
+  , 191
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , -1
+  , 195
   , 65
   , 66
   , 67
@@ -1242,70 +1163,70 @@ alex_check = Data.Array.listArray (0 :: Int, 665)
   , 120
   , 121
   , 122
+  , 128
+  , 129
+  , 130
+  , 131
+  , 132
+  , 133
+  , 134
+  , 135
+  , 136
+  , 137
+  , 138
+  , 139
+  , 140
+  , 141
+  , 142
+  , 143
+  , 144
+  , 145
+  , 146
+  , 147
+  , 148
+  , 149
+  , 150
   , -1
+  , 152
+  , 153
+  , 154
+  , 155
+  , 156
+  , 157
+  , 158
+  , 159
+  , 160
+  , 161
+  , 162
+  , 163
+  , 164
+  , 165
+  , 166
+  , 167
+  , 168
+  , 169
+  , 170
+  , 171
+  , 172
+  , 173
+  , 174
+  , 175
+  , 176
+  , 177
+  , 178
+  , 179
+  , 180
+  , 181
+  , 182
   , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , 195
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
+  , 184
+  , 185
+  , 186
+  , 187
+  , 188
+  , 189
+  , 190
+  , 191
   , -1
   , -1
   , -1
@@ -1397,24 +1318,24 @@ alex_accept = Data.Array.listArray (0 :: Int, 11)
   [ AlexAccNone
   , AlexAcc 5
   , AlexAcc 4
-  , AlexAccNone
   , AlexAcc 3
+  , AlexAccNone
   , AlexAcc 2
-  , AlexAccNone
   , AlexAccSkip
-  , AlexAcc 1
   , AlexAccNone
+  , AlexAccNone
+  , AlexAcc 1
   , AlexAcc 0
   , AlexAccNone
   ]
 
 alex_actions = Data.Array.array (0 :: Int, 6)
-  [ (5,alex_action_3)
-  , (4,alex_action_4)
-  , (3,alex_action_1)
+  [ (5,alex_action_4)
+  , (4,alex_action_3)
+  , (3,alex_action_2)
   , (2,alex_action_1)
   , (1,alex_action_1)
-  , (0,alex_action_2)
+  , (0,alex_action_1)
   ]
 
 alex_action_1 = tok (eitherResIdent TV)
@@ -1438,12 +1359,16 @@ alex_action_4 = tok TI
 #  define FAST_INT Int#
 -- Do not remove this comment. Required to fix CPP parsing when using GCC and a clang-compiled alex.
 #  if __GLASGOW_HASKELL__ > 706
-#    define GTE(n,m) (GHC.Exts.tagToEnum# (n >=# m))
-#    define EQ(n,m) (GHC.Exts.tagToEnum# (n ==# m))
+#    define CMP_GEQ(n,m) (((n) >=# (m)) :: Int#)
+#    define CMP_EQ(n,m) (((n) ==# (m)) :: Int#)
+#    define CMP_MKBOOL(x) ((GHC.Exts.tagToEnum# (x)) :: Bool)
 #  else
-#    define GTE(n,m) (n >=# m)
-#    define EQ(n,m) (n ==# m)
+#    define CMP_GEQ(n,m) (((n) >= (m)) :: Bool)
+#    define CMP_EQ(n,m) (((n) == (m)) :: Bool)
+#    define CMP_MKBOOL(x) ((x) :: Bool)
 #  endif
+#  define GTE(n,m) CMP_MKBOOL(CMP_GEQ(n,m))
+#  define EQ(n,m) CMP_MKBOOL(CMP_EQ(n,m))
 #  define PLUS(n,m) (n +# m)
 #  define MINUS(n,m) (n -# m)
 #  define TIMES(n,m) (n *# m)
@@ -1469,18 +1394,15 @@ data AlexAddr = AlexA# Addr#
 {-# INLINE alexIndexInt16OffAddr #-}
 alexIndexInt16OffAddr :: AlexAddr -> Int# -> Int#
 alexIndexInt16OffAddr (AlexA# arr) off =
-#ifdef WORDS_BIGENDIAN
-  narrow16Int# i
-  where
-        i    = word2Int# ((high `uncheckedShiftL#` 8#) `or#` low)
-        high = int2Word# (ord# (indexCharOffAddr# arr (off' +# 1#)))
-        low  = int2Word# (ord# (indexCharOffAddr# arr off'))
-        off' = off *# 2#
-#else
 #if __GLASGOW_HASKELL__ >= 901
-  GHC.Exts.int16ToInt#
+  GHC.Exts.int16ToInt# -- qualified import because it doesn't exist on older GHC's
 #endif
-    (indexInt16OffAddr# arr off)
+#ifdef WORDS_BIGENDIAN
+  (GHC.Exts.word16ToInt16# (GHC.Exts.wordToWord16# (GHC.Exts.byteSwap16# (GHC.Exts.word16ToWord# (GHC.Exts.int16ToWord16#
+#endif
+  (indexInt16OffAddr# arr off)
+#ifdef WORDS_BIGENDIAN
+  )))))
 #endif
 #else
 alexIndexInt16OffAddr = (Data.Array.!)
@@ -1490,22 +1412,15 @@ alexIndexInt16OffAddr = (Data.Array.!)
 {-# INLINE alexIndexInt32OffAddr #-}
 alexIndexInt32OffAddr :: AlexAddr -> Int# -> Int#
 alexIndexInt32OffAddr (AlexA# arr) off =
-#ifdef WORDS_BIGENDIAN
-  narrow32Int# i
-  where
-   i    = word2Int# ((b3 `uncheckedShiftL#` 24#) `or#`
-                     (b2 `uncheckedShiftL#` 16#) `or#`
-                     (b1 `uncheckedShiftL#` 8#) `or#` b0)
-   b3   = int2Word# (ord# (indexCharOffAddr# arr (off' +# 3#)))
-   b2   = int2Word# (ord# (indexCharOffAddr# arr (off' +# 2#)))
-   b1   = int2Word# (ord# (indexCharOffAddr# arr (off' +# 1#)))
-   b0   = int2Word# (ord# (indexCharOffAddr# arr off'))
-   off' = off *# 4#
-#else
 #if __GLASGOW_HASKELL__ >= 901
-  GHC.Exts.int32ToInt#
+  GHC.Exts.int32ToInt# -- qualified import because it doesn't exist on older GHC's
 #endif
-    (indexInt32OffAddr# arr off)
+#ifdef WORDS_BIGENDIAN
+  (GHC.Exts.word32ToInt32# (GHC.Exts.wordToWord32# (GHC.Exts.byteSwap32# (GHC.Exts.word32ToWord# (GHC.Exts.int32ToWord32#
+#endif
+  (indexInt32OffAddr# arr off)
+#ifdef WORDS_BIGENDIAN
+  )))))
 #endif
 #else
 alexIndexInt32OffAddr = (Data.Array.!)
@@ -1529,7 +1444,12 @@ data AlexReturn a
 
 -- alexScan :: AlexInput -> StartCode -> AlexReturn a
 alexScan input__ IBOX(sc)
-  = alexScanUser undefined input__ IBOX(sc)
+  = alexScanUser (error "alex rule requiring context was invoked by alexScan; use alexScanUser instead?") input__ IBOX(sc)
+
+-- If the generated alexScan/alexScanUser functions are called multiple times
+-- in the same file, alexScanUser gets broken out into a separate function and
+-- increases memory usage. Make sure GHC inlines this function and optimizes it.
+{-# INLINE alexScanUser #-}
 
 alexScanUser user__ input__ IBOX(sc)
   = case alex_scan_tkn user__ input__ ILIT(0) input__ sc AlexNone of
@@ -1572,7 +1492,7 @@ alex_scan_tkn user__ orig_input len input__ s last_acc =
      Nothing -> (new_acc, input__)
      Just (c, new_input) ->
 #ifdef ALEX_DEBUG
-      Debug.Trace.trace ("State: " ++ show IBOX(s) ++ ", char: " ++ show c ++ " " ++ (show . chr . fromIntegral) c) $
+      Debug.Trace.trace ("State: " ++ show IBOX(s) ++ ", char: " ++ show c ++ " " ++ (show . Data.Char.chr . fromIntegral) c) $
 #endif
       case fromIntegral c of { IBOX(ord_c) ->
         let
