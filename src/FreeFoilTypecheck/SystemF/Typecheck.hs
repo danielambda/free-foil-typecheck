@@ -86,9 +86,9 @@ extendContextPattern pattern = extendContext' (Foil.nameBinderListOf pattern)
 --------------------------------------------------------------------------------
 
 -- | Check if actual type matches expected type
-shouldBe :: (AlphaEquiv ty, Foil.Distinct n, Show (ty n)) => 
-  (Foil.NameMap n (ty n), ty n) -> 
-  ty n -> 
+shouldBe :: (AlphaEquiv ty, Foil.Distinct n, Show (ty n)) =>
+  (Foil.NameMap n (ty n), ty n) ->
+  ty n ->
   Either String ()
 shouldBe (scope, actualType) expectedType
   | sameType = return ()
@@ -235,7 +235,7 @@ inferType scope (Term (ESub l r)) = do
   _ <- typecheck scope (Term l) (Term TNat)
   _ <- typecheck scope (Term r) (Term TNat)
   return (Term TNat)
-  
+
 -- Conditionals
 inferType scope (Term (EIf eCond eThen eElse)) = do
   _ <- typecheck scope (Term eCond) (Term TBool)
@@ -255,8 +255,8 @@ inferType scope (Term (ETyped expr type_)) = do
 inferType scope (Term (ELet e1 pat e2)) = do
   case Foil.assertDistinct pat of
     Foil.Distinct -> do
-      type1 <- inferType scope (Term e1) 
-      let newScope = extendContextPattern pat type1 scope 
+      type1 <- inferType scope (Term e1)
+      let newScope = extendContextPattern pat type1 scope
       type' <- inferType newScope (Term e2)
       unsinkType scope type'
 
@@ -355,3 +355,4 @@ unifyScopes scope (FreeFoil.ScopedAST binderL bodyL) (FreeFoil.ScopedAST binderR
               bodyR' = Foil.liftRM newScope (Foil.fromNameBinderRenaming renameR) bodyR
           Just (PairOfScopedAST binders bodyL' bodyR')
     Foil.NotUnifiable -> Nothing
+

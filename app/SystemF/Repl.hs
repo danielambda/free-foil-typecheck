@@ -38,9 +38,7 @@ genRepl :: String -> String
 genRepl input =
   case toTermClosed <$> pTerm tokens of
     Left err -> "Parsing error: " ++ err
-    Right et@(Term e) -> case do
-      checkInfer <- bidirectionalCheckInfer @Term emptyNameMap e
-      infer checkInfer of
+    Right et@(Term e) -> case bidirectionalInfer @Term emptyNameMap e of
       Left err -> "Typechecking error: " ++ err
       Right _type -> case newEval emptyNameMap et of
         Left err -> "Evaluation error: " ++ err

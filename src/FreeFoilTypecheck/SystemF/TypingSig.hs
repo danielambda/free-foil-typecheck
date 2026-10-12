@@ -12,6 +12,8 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE DerivingStrategies #-}
 
 module FreeFoilTypecheck.SystemF.TypingSig where
 
@@ -45,7 +47,7 @@ instance
     -- Type application
     ETAppSig e t -> \expectedType -> do
       check t (Term TType)
-      (Term tt) <- infer t
+      Term tt <- infer t
       case infer e of
         Right (Term (TForAll (FoilPatternVar x) bodyType)) -> do
           let subst = Foil.addSubst Foil.identitySubst x tt
@@ -225,4 +227,4 @@ instance TypedPattern ty (FoilPattern ty) where
   extractTypedBinders (FoilPatternAsc binder ty) _ =
     TypedNameBindersCons binder ty TypedNameBindersEmpty
 
-deriving instance AlphaEquiv Term
+deriving newtype instance AlphaEquiv Term

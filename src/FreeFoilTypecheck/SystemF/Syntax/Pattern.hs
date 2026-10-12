@@ -47,14 +47,14 @@ instance (Foil.Sinkable ty) => Foil.CoSinkable (FoilPattern ty) where
           let type_' = Foil.sinkabilityProof rename type_
               pat' = FoilPatternAsc binder' type_'
            in cont rename' pat'
-  
+
   withPattern withBinder _unit _comp scope pat cont =
     case pat of
       FoilPatternVar binder -> withBinder scope binder $ \result binder' ->
         cont result (FoilPatternVar binder') (Foil.extendScope binder' scope)
       FoilPatternAsc binder type_ -> withBinder scope binder $ \result binder' ->
         let rename = undefined  -- FIXME
-         in cont result (FoilPatternAsc binder' (rename type_)) (Foil.extendScope binder' scope)
+        in cont result (FoilPatternAsc binder' (rename type_)) (Foil.extendScope binder' scope)
 
 -- mkToFoilPattern ''Raw.Ident ''Raw.Pattern
 toFoilPattern ::
