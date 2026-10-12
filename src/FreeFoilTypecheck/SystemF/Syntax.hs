@@ -1,6 +1,6 @@
 module FreeFoilTypecheck.SystemF.Syntax
   ( 
-  -- module FreeFoilTypecheck.SystemF.Syntax.Exp,
+    -- module FreeFoilTypecheck.SystemF.Syntax.Exp,
     -- module FreeFoilTypecheck.SystemF.Syntax.Type,
     module FreeFoilTypecheck.SystemF.Syntax.Pattern,
     module FreeFoilTypecheck.SystemF.Syntax.Term,

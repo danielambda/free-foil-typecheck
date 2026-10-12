@@ -1,5 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeApplications #-}
 module Main where
 
 import Control.Monad.Foil (emptyNameMap)
@@ -9,18 +7,24 @@ import FreeFoilTypecheck.SystemF.Syntax (Term (..), toTermClosed)
 import FreeFoilTypecheck.SystemF.Typecheck
 import FreeFoilTypecheck.SystemF.TypecheckGen
 import FreeFoilTypecheck.SystemF.TypingSig ()
-import System.Environment (getArgs)
+
+-- main :: IO ()
+-- main = getArgs >>= \case
+--   ["-gen"] -> do
+--     putStrLn "Welcome to REPL! (gen)\n"
+--     interact (unlines . map genRepl . lines)
+--   _ -> do
+--     putStrLn "Welcome to REPL!\n"
+--     interact (unlines . map repl . lines)
 
 main :: IO ()
 main = do
-  args <- getArgs
-  case args of
-    ["-gen"] -> do
-      putStrLn "Welcome to REPL! (gen)\n"
-      interact (unlines . map genRepl . lines)
-    _ -> do
-      putStrLn "Welcome to REPL!\n"
-      interact (unlines . map repl . lines)
+  let example = "let id = (ΛX. λx:X. x) in id : forall Y. Y -> Y"
+  Right (Term a) <- pure $ toTermClosed <$> pTerm (myLexer example)
+  Right b <- pure $ bidirectionalInfer @Term emptyNameMap a
+
+  print b
+  pure ()
 
 repl :: String -> String
 repl input =
@@ -38,9 +42,7 @@ genRepl :: String -> String
 genRepl input =
   case toTermClosed <$> pTerm tokens of
     Left err -> "Parsing error: " ++ err
-    Right et@(Term e) -> case do
-      checkInfer <- bidirectionalCheckInfer @Term emptyNameMap e
-      infer checkInfer of
+    Right et@(Term e) -> case bidirectionalInfer @Term emptyNameMap e of
       Left err -> "Typechecking error: " ++ err
       Right _type -> case newEval emptyNameMap et of
         Left err -> "Evaluation error: " ++ err

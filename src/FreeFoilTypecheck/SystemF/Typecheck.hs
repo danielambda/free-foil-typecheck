@@ -1,25 +1,11 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE QuantifiedConstraints #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
 module FreeFoilTypecheck.SystemF.Typecheck where
 
+import Control.Monad (unless)
 import Control.Monad.Foil (nameMapToScope)
-import qualified Control.Monad.Foil as Foil
-import qualified Control.Monad.Foil.Relative as Foil
+import Control.Monad.Foil qualified as Foil
+import Control.Monad.Foil.Relative qualified as Foil
 import Control.Monad.Free.Foil (unsinkAST)
-import qualified Control.Monad.Free.Foil as FreeFoil
+import Control.Monad.Free.Foil qualified as FreeFoil
 import Data.Bifunctor (Bifunctor)
 import Data.Bitraversable (Bitraversable)
 import Data.ZipMatchK (ZipMatchK)
@@ -33,9 +19,9 @@ import FreeFoilTypecheck.SystemF.Syntax
 -- >>> typecheckClosed "2 - (1 + 1)" "Nat"
 -- Right Nat
 -- >>> typecheckClosed "2 - (1 + true)" "Nat"
--- Left "expected type\n  Nat\nbut got type\n  Bool\nwhen typechecking expession\n"
+-- Left "expected type\n  Nat\nbut got type\n  Bool\nwhen typechecking expression\n"
 -- >>> typecheckClosed "2 - (1 + 1)" "Bool"
--- Left "expected type\n  Bool\nbut got type\n  Nat\nwhen typechecking expession\n"
+-- Left "expected type\n  Bool\nbut got type\n  Nat\nwhen typechecking expression\n"
 -- >>> typecheckClosed "let x = 1 in let y = 2 in x + (let x = 3 in x + y)" "Nat"
 -- Right Nat
 typecheckClosed ::
@@ -86,24 +72,20 @@ extendContextPattern pattern = extendContext' (Foil.nameBinderListOf pattern)
 --------------------------------------------------------------------------------
 
 -- | Check if actual type matches expected type
-shouldBe :: (AlphaEquiv ty, Foil.Distinct n, Show (ty n)) => 
-  (Foil.NameMap n (ty n), ty n) -> 
-  ty n -> 
+shouldBe ::
+  (AlphaEquiv ty, Foil.Distinct n, Show (ty n)) =>
+  (Foil.NameMap n (ty n), ty n) ->
+  ty n ->
   Either String ()
-shouldBe (scope, actualType) expectedType
-  | sameType = return ()
-  | otherwise =
-      Left $
-        unlines
-          [ "expected type",
-            "  " ++ show expectedType,
-            "but got type",
-            "  " ++ show actualType,
-            "when typechecking expession"
-            -- "  " ++ show e
-          ]
-  where
-    sameType = alphaEquiv (nameMapToScope scope) actualType expectedType
+shouldBe (scope, actualType) expectedType =
+  unless (alphaEquiv (nameMapToScope scope) actualType expectedType) do
+    Left $ unlines
+      [ "expected type"
+      , "  " ++ show expectedType
+      , "but got type"
+      , "  " ++ show actualType
+      , "when typechecking expression"
+      ]
 
 -- | Unsink a type from a larger scope to a smaller one
 unsinkType :: (Foil.Distinct l) => Context n -> Term l -> Either String (Term n)
@@ -235,7 +217,7 @@ inferType scope (Term (ESub l r)) = do
   _ <- typecheck scope (Term l) (Term TNat)
   _ <- typecheck scope (Term r) (Term TNat)
   return (Term TNat)
-  
+
 -- Conditionals
 inferType scope (Term (EIf eCond eThen eElse)) = do
   _ <- typecheck scope (Term eCond) (Term TBool)
@@ -255,8 +237,8 @@ inferType scope (Term (ETyped expr type_)) = do
 inferType scope (Term (ELet e1 pat e2)) = do
   case Foil.assertDistinct pat of
     Foil.Distinct -> do
-      type1 <- inferType scope (Term e1) 
-      let newScope = extendContextPattern pat type1 scope 
+      type1 <- inferType scope (Term e1)
+      let newScope = extendContextPattern pat type1 scope
       type' <- inferType newScope (Term e2)
       unsinkType scope type'
 
@@ -355,3 +337,4 @@ unifyScopes scope (FreeFoil.ScopedAST binderL bodyL) (FreeFoil.ScopedAST binderR
               bodyR' = Foil.liftRM newScope (Foil.fromNameBinderRenaming renameR) bodyR
           Just (PairOfScopedAST binders bodyL' bodyR')
     Foil.NotUnifiable -> Nothing
+

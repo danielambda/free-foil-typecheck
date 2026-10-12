@@ -1,5 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-
 -- | Inference time of four engines on families of HM programs, measured with
 -- Bodigrim's tasty-bench:
 --
@@ -17,14 +15,14 @@
 module Main (main) where
 
 import Control.DeepSeq (NFData (..))
-import qualified Control.Monad.Free.Foil as FreeFoil
+import Control.Monad.Free.Foil qualified as FreeFoil
 import Data.Bifoldable (Bifoldable, bifoldMap)
 import Data.Monoid (Sum (..))
 import FreeFoilTypecheck.GeneralTypecheck (Generalization (..), HMType (..), TypeScheme (..), UType, inferTypeSchemeClosed)
-import qualified FreeFoilTypecheck.HindleyMilner.Inference as Original
+import FreeFoilTypecheck.HindleyMilner.Inference qualified as Original
 import FreeFoilTypecheck.HindleyMilner.Parser.Par (myLexer, pExp)
 import FreeFoilTypecheck.HindleyMilner.Rules ()
-import qualified FreeFoilTypecheck.HindleyMilner.SpecializedInference as Specialized
+import FreeFoilTypecheck.HindleyMilner.SpecializedInference qualified as Specialized
 import FreeFoilTypecheck.HindleyMilner.Syntax (Exp', FoilTypePattern, TypeSig, toExpClosed)
 -- (the instance of 'HMTypingSig' for the HM language comes from Rules)
 import Test.Tasty.Bench

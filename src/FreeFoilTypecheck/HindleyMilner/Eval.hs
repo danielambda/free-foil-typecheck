@@ -1,4 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
 
 module FreeFoilTypecheck.HindleyMilner.Eval where
 

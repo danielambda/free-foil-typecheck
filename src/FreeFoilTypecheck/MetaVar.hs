@@ -37,8 +37,8 @@ module FreeFoilTypecheck.MetaVar
   )
 where
 
-import qualified Data.IntMap as IntMap
-import qualified Data.IntSet as IntSet
+import Data.IntMap qualified as IntMap
+import Data.IntSet qualified as IntSet
 
 -- | A unification variable (metavariable).
 newtype MetaVar = MetaVar Int

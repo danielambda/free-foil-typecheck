@@ -11,7 +11,7 @@ module FreeFoilTypecheck.ScopeCheck
 where
 
 import Data.Bifoldable (Bifoldable, bitraverse_)
-import qualified Data.Set as Set
+import Data.Set qualified as Set
 
 -- | Check that a raw term has no free variables.
 -- On failure, returns the first unbound variable.

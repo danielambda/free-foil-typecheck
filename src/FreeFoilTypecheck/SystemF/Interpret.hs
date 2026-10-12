@@ -1,5 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeApplications #-}
 module FreeFoilTypecheck.SystemF.Interpret where
 
 import Control.Monad.Foil (emptyNameMap)
@@ -7,7 +5,7 @@ import FreeFoilTypecheck.SystemF.Eval
 import FreeFoilTypecheck.SystemF.Parser.Par
 import FreeFoilTypecheck.SystemF.Syntax (toTermClosed, Term(..))
 import FreeFoilTypecheck.SystemF.Typecheck (inferType)
-import FreeFoilTypecheck.SystemF.TypecheckGen (bidirectionalCheckInfer, infer)
+import FreeFoilTypecheck.SystemF.TypecheckGen (bidirectionalInfer)
 import FreeFoilTypecheck.SystemF.TypingSig ()
 
 data Result
@@ -37,9 +35,7 @@ interpretGen :: String -> Result
 interpretGen input =
   case toTermClosed <$> pTerm tokens of
     Left err -> Failure ParsingError ("Parsing error: " ++ err)
-    Right et@(Term e) -> case do
-      checkInfer <- bidirectionalCheckInfer @Term emptyNameMap e
-      infer checkInfer of
+    Right et@(Term e) -> case bidirectionalInfer @Term emptyNameMap e of
       Left err -> Failure TypecheckingError ("Typechecking error: " ++ err)
       Right _type -> case newEval emptyNameMap et of
         Left err -> Failure EvaluationError ("Evaluation error: " ++ err)

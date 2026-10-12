@@ -1,25 +1,20 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 -- | Typing rules of the HM language for the generic engine
 -- ('FreeFoilTypecheck.GeneralTypecheck').
 module FreeFoilTypecheck.HindleyMilner.Rules where
 
-import qualified Control.Monad.Foil as Foil
-import qualified Control.Monad.Free.Foil as FreeFoil
+import Control.Monad.Foil qualified as Foil
+import Control.Monad.Free.Foil qualified as FreeFoil
 import Data.Bifoldable (bifoldMap)
 import Data.Bifunctor (bimap)
 import Data.Bifunctor.Sum (Sum (..))
 import Data.List (elemIndex, nub)
-import qualified Data.Map as Map
+import Data.Map qualified as Map
 import Data.Maybe (fromMaybe)
 import FreeFoilTypecheck.GeneralTypecheck
 import FreeFoilTypecheck.MetaVar (MetaVar (..))
-import qualified FreeFoilTypecheck.HindleyMilner.Parser.Abs as Raw
+import FreeFoilTypecheck.HindleyMilner.Parser.Abs qualified as Raw
 import FreeFoilTypecheck.HindleyMilner.Syntax
 import FreeFoilTypecheck.ScopeCheck (checkClosed)
 

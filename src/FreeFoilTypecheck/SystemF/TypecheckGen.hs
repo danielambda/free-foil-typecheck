@@ -1,24 +1,169 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE QuantifiedConstraints #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE UndecidableInstances #-}
-
-module FreeFoilTypecheck.SystemF.TypecheckGen where
+module FreeFoilTypecheck.SystemF.TypecheckGen
+  ( Context'
+  , AlphaEquiv(..)
+  , TypingSig(..), toAST
+  , defaultCheckSig
+  , TypedPattern(..)
+  , bidirectionalCheck
+  , bidirectionalInfer
+  , Scoped(..)
+  , mapBinder
+  , TypeError(..)
+  , TypedNameBinders(..)
+  , TypedAST(..)
+  , ScopedTypedAST
+  , typeOf
+  , CheckInfer(..)
+  , ScopedCheckInfer
+  , ScopedCheckInfer'(..)
+  , shouldBe
+  ) where
 
 import Control.Monad (unless)
-import Control.Monad.Foil (nameMapToScope)
-import qualified Control.Monad.Foil as Foil
-import qualified Control.Monad.Foil.Relative as Foil
-import qualified Control.Monad.Free.Foil as FreeFoil
-import Data.Bitraversable
+import Control.Monad.Foil hiding (AlphaEquiv)
+import Control.Monad.Free.Foil qualified as FreeFoil (alphaEquiv)
+import Control.Monad.Foil.Relative
+import Control.Monad.Free.Foil hiding (alphaEquiv)
+import Data.Bitraversable (Bitraversable)
 import Data.Kind (Type)
 import Data.ZipMatchK (ZipMatchK)
+import Data.Bifunctor (bimap, Bifunctor)
+
+-- | Main typing signature class
+class
+  (forall n. Show (TypeError (ty n)), AlphaEquiv ty) =>
+  TypingSig binder ty sig
+  where
+  checkSig ::
+    (Distinct n) =>
+    Context' ty n ->
+    sig (ScopedCheckInfer binder sig ty n) (CheckInfer binder sig ty n) ->
+    ty n ->
+    Either String (TypedAST binder sig ty n)
+  checkSig = defaultCheckSig
+
+  inferSig ::
+    (Distinct n) =>
+    Context' ty n ->
+    sig (ScopedCheckInfer binder sig ty n) (CheckInfer binder sig ty n) ->
+    Either String (TypedAST binder sig ty n)
+
+defaultCheckSig ::
+  (TypingSig binder ty sig, Distinct n) =>
+  Context' ty n ->
+  sig (ScopedCheckInfer binder sig ty n) (CheckInfer binder sig ty n) ->
+  ty n ->
+  Either String (TypedAST binder sig ty n)
+defaultCheckSig ctx node expectedType = do
+  typedNode <- inferSig ctx node
+  unless (alphaEquiv (nameMapToScope ctx) (typeOf typedNode) expectedType) do
+    Left (show (TypeErrorUnexpectedType (typeOf typedNode) expectedType))
+  pure typedNode
+
+bidirectionalInfer ::
+  forall ty binder sig n.
+  ( Distinct n,
+    Bifunctor sig,
+    AlphaEquiv ty,
+    TypingSig binder ty sig,
+    UnifiablePattern binder,
+    SinkableK binder,
+    Sinkable ty,
+    TypedPattern ty binder
+  ) =>
+  Context' ty n ->
+  AST binder sig n ->
+  Either String (TypedAST binder sig ty n)
+bidirectionalInfer scope t = infer $ bidirectionalCheckInfer scope t
+
+bidirectionalCheck ::
+  forall ty binder sig n.
+  ( Distinct n,
+    Bifunctor sig,
+    AlphaEquiv ty,
+    TypingSig binder ty sig,
+    UnifiablePattern binder,
+    SinkableK binder,
+    Sinkable ty,
+    TypedPattern ty binder
+  ) =>
+  Context' ty n ->
+  AST binder sig n ->
+  ty n -> Either String (TypedAST binder sig ty n)
+bidirectionalCheck scope t = check $ bidirectionalCheckInfer scope t
+
+bidirectionalCheckInfer ::
+  forall ty binder sig n.
+  ( Distinct n,
+    Bifunctor sig,
+    TypingSig binder ty sig,
+    UnifiablePattern binder,
+    SinkableK binder,
+    Sinkable ty,
+    TypedPattern ty binder
+  ) =>
+  Context' ty n ->
+  AST binder sig n ->
+  CheckInfer binder sig ty n
+bidirectionalCheckInfer scope = \case
+  Var n ->
+    let inferredType = lookupName n scope
+    in CheckInfer
+      { infer = pure $ TypedVar n inferredType
+      , check = \expectedType -> do
+          unless (alphaEquiv (nameMapToScope scope) inferredType expectedType) do
+            Left (show (TypeErrorUnexpectedType inferredType expectedType))
+          pure $ TypedVar n inferredType
+      , getTerm = Var n
+      }
+  Node node ->
+    let node' = bimap
+          (bidirectionalCheckInferScoped scope . unScopedAST)
+          (bidirectionalCheckInfer scope)
+          node
+    in CheckInfer
+        { infer = inferSig scope node'
+        , check = checkSig scope node'
+        , getTerm = Node node
+        }
+bidirectionalCheckInferScoped ::
+  ( Distinct n,
+    Bifunctor sig,
+    TypingSig binder ty sig,
+    UnifiablePattern binder,
+    SinkableK binder,
+    Sinkable ty,
+    TypedPattern ty binder
+  ) =>
+  Context' ty n ->
+  Scoped binder (AST binder sig) n ->
+  ScopedCheckInfer binder sig ty n
+bidirectionalCheckInferScoped scope (Scoped binder body) =
+  case (assertExt binder, assertDistinct binder) of
+    (Ext, Distinct) -> \mbinderType -> ScopedCheckInfer
+      { scopedInfer = do
+          ty <- extractTypeFromBinder scope binder mbinderType
+          let scope' = sink <$> addNameBinder (extractExactlyOneBinder binder ty) ty scope
+          Scoped binder <$> bidirectionalInfer scope' body
+      , scopedCheck = \(Scoped binder' expectedType) -> do
+          ty <- extractTypeFromBinder scope binder mbinderType
+          case unifyPatterns binder binder' of
+            SameNameBinders _binders -> do
+              let scope' =
+                    sink <$> addNameBinder (extractExactlyOneBinder binder ty) ty scope
+              let ci = bidirectionalCheckInfer scope' body
+              b' <- check ci expectedType
+              pure $ Scoped binder b'
+            RenameLeftNameBinder _binders renameL ->
+              case (assertExt binder', assertDistinct binder') of
+                (Ext, Distinct) -> do
+                  let scope' = sink <$> addNameBinder (extractExactlyOneBinder binder' ty) ty scope
+                  let body' = liftRM (nameMapToScope scope') (fromNameBinderRenaming renameL) body
+                  b' <- bidirectionalCheck scope' body' expectedType
+                  pure $ Scoped binder' b'
+            -- FIXME: RenameRightNameBinder, RenameBothNameBinders
+            _ -> Left "non-unifiable patterns"
+      }
 
 --------------------------------------------------------------------------------
 
@@ -27,11 +172,17 @@ import Data.ZipMatchK (ZipMatchK)
 --------------------------------------------------------------------------------
 
 -- | Typing context mapping names to types
-type Context' ty n = Foil.NameMap n (ty n)
+type Context' ty n = NameMap n (ty n)
+
+unScopedAST :: ScopedAST binder sig n -> Scoped binder (AST binder sig) n
+unScopedAST (ScopedAST binder body) = Scoped binder body
 
 -- | Scoped value with a binder
-data Scoped binder (t :: Foil.S -> Type) (n :: Foil.S) where
+data Scoped binder (t :: S -> Type) (n :: S) where
   Scoped :: binder n l -> t l -> Scoped binder t n
+
+mapBinder :: (forall x y. binder0 x y -> binder1 x y) -> Scoped binder0 t n -> Scoped binder1 t n
+mapBinder f (Scoped bindernl tl) = Scoped (f bindernl) tl
 
 -- | Type errors
 data TypeError ty
@@ -39,22 +190,51 @@ data TypeError ty
   | TypeErrorUnexpectedDependentType
   deriving (Show)
 
--- | Bidirectional type checking result
-data CheckInfer term ty (n :: Foil.S) = CheckInfer
-  { check :: ty n -> Either String (),
-    infer :: Either String (ty n),
-    getTerm :: term n
+data TypedAST binder sig ty n where
+  TypedVar :: Name n -> ty n -> TypedAST binder sig ty n
+  TypedNode ::
+    sig (ScopedTypedAST binder sig ty n) (TypedAST binder sig ty n) ->
+    ty n ->
+    TypedAST binder sig ty n
+
+type ScopedTypedAST binder sig ty n = Scoped binder (TypedAST binder sig ty) n
+
+typeOf :: TypedAST binder sig ty n -> ty n
+typeOf (TypedVar _ ty) = ty
+typeOf (TypedNode _ ty) = ty
+
+toAST :: (Bifunctor sig) => TypedAST binder sig ty n -> AST binder sig n
+toAST (TypedVar n _) = Var n
+toAST (TypedNode n _) = Node (bimap toScopedAST toAST n)
+
+toScopedAST :: (Bifunctor sig) => Scoped binder (TypedAST binder sig ty) n -> ScopedAST binder sig n
+toScopedAST (Scoped binder typedAST) = ScopedAST binder (toAST typedAST)
+
+data CheckInfer binder sig ty n = CheckInfer
+  { check :: ty n -> Either String (TypedAST binder sig ty n)
+  , infer :: Either String (TypedAST binder sig ty n)
+  , getTerm :: AST binder sig n
   }
 
--- | Type for scoped checking/inference
-type ScopedCheckInfer term binder ty (n :: Foil.S) =
-  Maybe (ty n) -> CheckInfer (Scoped binder term) (Scoped binder ty) n
+-- | Bidirectional check/infer for a scoped subterm.
+--
+-- The annotation (a 'Maybe' type for the bound variable) is supplied by the
+-- parent typing rule. The resulting check/infer actions return the typed body
+-- wrapped back in its binder, so the parent rule can recover both.
+data ScopedCheckInfer' binder sig ty n = ScopedCheckInfer
+  { scopedCheck ::
+      Scoped binder ty n ->
+      Either String (Scoped binder (TypedAST binder sig ty) n)
+  , scopedInfer :: Either String (Scoped binder (TypedAST binder sig ty) n)
+  }
+
+type ScopedCheckInfer binder sig ty n = Maybe (ty n) -> ScopedCheckInfer' binder sig ty n
 
 -- | Typed name binders data structure
 data TypedNameBinders ty n l where
   TypedNameBindersEmpty :: TypedNameBinders ty n n
   TypedNameBindersCons ::
-    Foil.NameBinder n i -> ty n -> TypedNameBinders ty i l -> TypedNameBinders ty n l
+    NameBinder n i -> ty n -> TypedNameBinders ty i l -> TypedNameBinders ty n l
 
 --------------------------------------------------------------------------------
 
@@ -64,51 +244,19 @@ data TypedNameBinders ty n l where
 
 -- | Alpha equivalence class
 class AlphaEquiv t where
-  alphaEquiv :: (Foil.Distinct n) => Foil.Scope n -> t n -> t n -> Bool
+  alphaEquiv :: (Distinct n) => Scope n -> t n -> t n -> Bool
 
 -- | Default instance for Free Foil ASTs
 instance
-  (Bitraversable sig, ZipMatchK sig, Foil.UnifiablePattern binder, Foil.SinkableK binder) =>
-  AlphaEquiv (FreeFoil.AST binder sig)
+  (Bitraversable sig, ZipMatchK sig, UnifiablePattern binder, SinkableK binder) =>
+  AlphaEquiv (AST binder sig)
   where
   alphaEquiv = FreeFoil.alphaEquiv
-
--- | Main typing signature class
-class
-  (forall n. Show (TypeError (ty n)), AlphaEquiv ty) =>
-  TypingSig binder ty sig
-  where
-  checkSig ::
-    (Foil.Distinct n) =>
-    Context' ty n ->
-    sig (ScopedCheckInfer (FreeFoil.AST binder sig) binder ty n) (CheckInfer (FreeFoil.AST binder sig) ty n) ->
-    ty n ->
-    Either String ()
-  checkSig = defaultCheckSig
-
-  inferSig ::
-    (Foil.Distinct n) =>
-    Context' ty n ->
-    sig (ScopedCheckInfer (FreeFoil.AST binder sig) binder ty n) (CheckInfer (FreeFoil.AST binder sig) ty n) ->
-    Either String (ty n)
 
 -- | Class for typed patterns
 class TypedPattern ty pat where
   extractPatternType :: pat n l -> Maybe (ty n)
   extractTypedBinders :: pat n l -> ty n -> TypedNameBinders ty n l
-
--- | Class for creating trivially scoped values
-class HasTrivialBinder binder where
-  triviallyScoped ::
-    (Foil.Distinct n, Foil.Sinkable ty) =>
-    Foil.Scope n ->
-    ty n ->
-    Scoped binder ty n
-
-instance HasTrivialBinder Foil.NameBinder where
-  triviallyScoped scope type_ =
-    Foil.withFresh scope $ \binder ->
-      Scoped binder (Foil.sink type_)
 
 --------------------------------------------------------------------------------
 
@@ -116,42 +264,9 @@ instance HasTrivialBinder Foil.NameBinder where
 
 --------------------------------------------------------------------------------
 
--- | Check if actual type matches expected type
-shouldBe ::
-  (AlphaEquiv ty, Foil.Distinct n, Show (ty n)) =>
-  (Foil.NameMap n (ty n), ty n) ->
-  ty n ->
-  Either String ()
-shouldBe (scope, actualType) expectedType
-  | sameType = return ()
-  | otherwise =
-      Left $
-        unlines
-          [ "expected type",
-            "  " ++ show expectedType,
-            "but got type",
-            "  " ++ show actualType,
-            "when typechecking expression"
-            -- ,  "  " ++ show e
-          ]
-  where
-    sameType = alphaEquiv (nameMapToScope scope) actualType expectedType
-
--- | Default implementation of checkSig
-defaultCheckSig ::
-  (Foil.Distinct n, TypingSig binder ty sig) =>
-  Context' ty n ->
-  sig (ScopedCheckInfer (FreeFoil.AST binder sig) binder ty n) (CheckInfer (FreeFoil.AST binder sig) ty n) ->
-  ty n ->
-  Either String ()
-defaultCheckSig ctx node expectedType = do
-  inferredType <- inferSig ctx node
-  unless (alphaEquiv (nameMapToScope ctx) inferredType expectedType) $
-    Left (show (TypeErrorUnexpectedType inferredType expectedType))
-
 -- | Extract type from a binder
 extractTypeFromBinder ::
-  (TypedPattern ty binder, AlphaEquiv ty, Foil.Distinct n) =>
+  (TypedPattern ty binder, AlphaEquiv ty, Distinct n) =>
   Context' ty n ->
   binder n l ->
   Maybe (ty n) ->
@@ -160,14 +275,12 @@ extractTypeFromBinder _scope binder Nothing =
   maybe (Left "cannot infer without type annotation for pattern") Right $
     extractPatternType binder
 extractTypeFromBinder scope binder (Just ty) =
-  maybe
-    (Right ty)
-    ( \binderTy ->
-        if alphaEquiv (nameMapToScope scope) binderTy ty
-          then Right ty
-          else Left "type mismatch"
-    )
-    $ extractPatternType binder
+  case extractPatternType binder of
+    Nothing -> Right ty
+    Just binderTy ->
+      if alphaEquiv (nameMapToScope scope) binderTy ty
+        then Right ty
+        else Left "type mismatch"
 
 --------------------------------------------------------------------------------
 
@@ -175,134 +288,23 @@ extractTypeFromBinder scope binder (Just ty) =
 
 --------------------------------------------------------------------------------
 
--- | Check a term against an expected type
-bidirectionalCheck ::
-  ( Foil.Distinct n,
-    Bitraversable sig,
-    AlphaEquiv ty,
-    TypingSig binder ty sig,
-    Foil.UnifiablePattern binder,
-    Foil.SinkableK binder,
-    Foil.Sinkable ty,
-    TypedPattern ty binder
-  ) =>
-  Context' ty n ->
-  FreeFoil.AST binder sig n ->
-  ty n ->
-  Either String ()
-bidirectionalCheck scope t expectedType = do
-  ci <- bidirectionalCheckInfer scope t
-  check ci expectedType
-
--- | Infer the type of a term
-bidirectionalInfer ::
-  ( Foil.Distinct n,
-    Bitraversable sig,
-    AlphaEquiv ty,
-    TypingSig binder ty sig,
-    Foil.UnifiablePattern binder,
-    Foil.SinkableK binder,
-    Foil.Sinkable ty,
-    TypedPattern ty binder
-  ) =>
-  Context' ty n ->
-  FreeFoil.AST binder sig n ->
-  Either String (ty n)
-bidirectionalInfer scope t = do
-  ci <- bidirectionalCheckInfer scope t
-  infer ci
-
--- | Combined check/infer for a term
-bidirectionalCheckInfer ::
-  forall ty binder sig n.
-  ( Foil.Distinct n,
-    Bitraversable sig,
-    TypingSig binder ty sig,
-    Foil.UnifiablePattern binder,
-    Foil.SinkableK binder,
-    Foil.Sinkable ty,
-    TypedPattern ty binder
-  ) =>
-  Context' ty n ->
-  FreeFoil.AST binder sig n ->
-  Either String (CheckInfer (FreeFoil.AST binder sig) ty n)
--- Variable case
-bidirectionalCheckInfer scope t@(FreeFoil.Var n) = do
-  let inferredType = Foil.lookupName n scope
-  return
-    CheckInfer
-      { infer = return inferredType,
-        check = \expectedType -> do
-          unless (alphaEquiv (nameMapToScope scope) inferredType expectedType) $
-            Left (show (TypeErrorUnexpectedType inferredType expectedType)),
-        getTerm = t
-      }
-
--- Node case
-bidirectionalCheckInfer scope (FreeFoil.Node node) = do
-  node' <-
-    bitraverse
-      (bidirectionalCheckInferScoped scope)
-      (bidirectionalCheckInfer scope)
-      node
-  return
-    CheckInfer
-      { infer = inferSig scope node',
-        check = checkSig scope node',
-        getTerm = FreeFoil.Node node
-      }
-
-extractExactlyOneBinder :: TypedPattern ty pat => pat n l -> ty n -> Foil.NameBinder n l
-extractExactlyOneBinder binder ty = 
+extractExactlyOneBinder :: TypedPattern ty pat => pat n l -> ty n -> NameBinder n l
+extractExactlyOneBinder binder ty =
   case extractTypedBinders binder ty of
     TypedNameBindersCons extractedBinder _ty TypedNameBindersEmpty -> extractedBinder
     _ -> error "Expected exactly one binder"
 
--- | Bidirectional check/infer for scoped terms
-bidirectionalCheckInferScoped ::
-  ( Foil.Distinct n,
-    Bitraversable sig,
-    TypingSig binder ty sig,
-    Foil.UnifiablePattern binder,
-    Foil.SinkableK binder,
-    Foil.Sinkable ty,
-    TypedPattern ty binder
-  ) =>
-  Context' ty n ->
-  FreeFoil.ScopedAST binder sig n ->
-  Either String (ScopedCheckInfer (FreeFoil.AST binder sig) binder ty n)
-bidirectionalCheckInferScoped scope (FreeFoil.ScopedAST binder body) =
-  case (Foil.assertExt binder, Foil.assertDistinct binder) of
-    (Foil.Ext, Foil.Distinct) -> return $ \mbinderType ->
-      CheckInfer
-        { infer = do
-            ty <- extractTypeFromBinder scope binder mbinderType
-            let scope' = Foil.sink <$> Foil.addNameBinder (extractExactlyOneBinder binder ty) ty scope
-            ci <- bidirectionalCheckInfer scope' body
-            Scoped binder <$> infer ci,
-          check = \(Scoped binder' expectedType) -> do
-            -- TODO: check binder' against binder
-            ty <- extractTypeFromBinder scope binder mbinderType
-            case Foil.unifyPatterns binder binder' of
-              Foil.SameNameBinders _binders -> do
-                let scope' =
-                      Foil.sink <$> Foil.addNameBinder (extractExactlyOneBinder binder ty) ty scope
-                ci <- bidirectionalCheckInfer scope' body
-                check ci expectedType
-              Foil.RenameLeftNameBinder _binders renameL ->
-                case (Foil.assertExt binder', Foil.assertDistinct binder') of
-                  (Foil.Ext, Foil.Distinct) -> do
-                    let scope' =
-                          Foil.sink <$> Foil.addNameBinder (extractExactlyOneBinder binder' ty) ty scope
-                        body' =
-                          Foil.liftRM
-                            (nameMapToScope scope')
-                            (Foil.fromNameBinderRenaming renameL)
-                            body
-                    ci <- bidirectionalCheckInfer scope' body'
-                    check ci expectedType
-
-              -- FIXME: RenameRightNameBinder, RenameBothNameBinders
-              _ -> Left "non-unifiable patterns",
-          getTerm = Scoped binder body
-        }
+shouldBe ::
+  (AlphaEquiv ty, Distinct n, Show (ty n)) =>
+  (Context' ty n, ty n) ->
+  ty n ->
+  Either String ()
+shouldBe (scope, actualType) expectedType =
+  unless (alphaEquiv (nameMapToScope scope) actualType expectedType) do
+    Left $ unlines
+      [ "expected type"
+      , "  " ++ show expectedType
+      , "but got type"
+      , "  " ++ show actualType
+      , "when typechecking expression"
+      ]

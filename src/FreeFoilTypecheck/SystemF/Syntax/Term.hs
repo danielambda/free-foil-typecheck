@@ -1,32 +1,24 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module FreeFoilTypecheck.SystemF.Syntax.Term where
 
-import qualified Control.Monad.Foil as Foil
+import Control.Monad.Foil qualified as Foil
 import Control.Monad.Free.Foil
 import Control.Monad.Free.Foil.TH
 import Data.Bifunctor.TH
 import Data.Map (Map)
-import qualified Data.Map as Map
+import Data.Map qualified as Map
 import Data.String (IsString (..))
 import Data.ZipMatchK (ZipMatchK (..), zipMatchViaEq)
 import Data.ZipMatchK.TH (deriveZipMatchK)
 import Generics.Kind.TH (deriveGenericK)
 import FreeFoilTypecheck.Orphans ()
-import qualified FreeFoilTypecheck.SystemF.Parser.Abs as Raw
-import qualified FreeFoilTypecheck.SystemF.Parser.Par as Raw
-import qualified FreeFoilTypecheck.SystemF.Parser.Print as Raw
+import FreeFoilTypecheck.SystemF.Parser.Abs qualified as Raw
+import FreeFoilTypecheck.SystemF.Parser.Par qualified as Raw
+import FreeFoilTypecheck.SystemF.Parser.Print qualified as Raw
 import FreeFoilTypecheck.SystemF.Syntax.Pattern
 
 -- $setup

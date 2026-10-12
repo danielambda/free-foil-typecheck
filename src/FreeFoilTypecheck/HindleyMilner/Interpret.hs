@@ -1,5 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-
 module FreeFoilTypecheck.HindleyMilner.Interpret where
 
 import Control.Monad.Foil (S (VoidS), emptyScope)
