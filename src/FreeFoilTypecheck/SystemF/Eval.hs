@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module FreeFoilTypecheck.SystemF.Eval where
 
 import Control.Monad (forM)

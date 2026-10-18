@@ -1,25 +1,11 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE QuantifiedConstraints #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
 module FreeFoilTypecheck.SystemF.Typecheck where
 
+import Control.Monad (unless)
 import Control.Monad.Foil (nameMapToScope)
-import qualified Control.Monad.Foil as Foil
-import qualified Control.Monad.Foil.Relative as Foil
+import Control.Monad.Foil qualified as Foil
+import Control.Monad.Foil.Relative qualified as Foil
 import Control.Monad.Free.Foil (unsinkAST)
-import qualified Control.Monad.Free.Foil as FreeFoil
+import Control.Monad.Free.Foil qualified as FreeFoil
 import Data.Bifunctor (Bifunctor)
 import Data.Bitraversable (Bitraversable)
 import Data.ZipMatchK (ZipMatchK)
@@ -86,24 +72,20 @@ extendContextPattern pattern = extendContext' (Foil.nameBinderListOf pattern)
 --------------------------------------------------------------------------------
 
 -- | Check if actual type matches expected type
-shouldBe :: (AlphaEquiv ty, Foil.Distinct n, Show (ty n)) =>
+shouldBe ::
+  (AlphaEquiv ty, Foil.Distinct n, Show (ty n)) =>
   (Foil.NameMap n (ty n), ty n) ->
   ty n ->
   Either String ()
-shouldBe (scope, actualType) expectedType
-  | sameType = return ()
-  | otherwise =
-      Left $
-        unlines
-          [ "expected type",
-            "  " ++ show expectedType,
-            "but got type",
-            "  " ++ show actualType,
-            "when typechecking expession"
-            -- "  " ++ show e
-          ]
-  where
-    sameType = alphaEquiv (nameMapToScope scope) actualType expectedType
+shouldBe (scope, actualType) expectedType =
+  unless (alphaEquiv (nameMapToScope scope) actualType expectedType) do
+    Left $ unlines
+      [ "expected type"
+      , "  " ++ show expectedType
+      , "but got type"
+      , "  " ++ show actualType
+      , "when typechecking expression"
+      ]
 
 -- | Unsink a type from a larger scope to a smaller one
 unsinkType :: (Foil.Distinct l) => Context n -> Term l -> Either String (Term n)

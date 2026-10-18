@@ -1,13 +1,6 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
@@ -20,20 +13,20 @@
 -- ('Branch') are a subterm syntax, each with its own pattern.
 module FreeFoilTypecheck.MiniML.Syntax where
 
-import qualified Control.Monad.Foil as Foil
+import Control.Monad.Foil qualified as Foil
 import Control.Monad.Free.Foil.TH.MkFreeFoil (mkFreeFoil, mkFreeFoilConversions)
 import Data.Bifoldable (bifoldMap)
 import Data.Bifunctor.TH
 import Data.List (group, sort)
-import qualified Data.Map as Map
+import Data.Map qualified as Map
 import Data.Maybe (listToMaybe)
 import Data.String (IsString (..))
 import Data.ZipMatchK (ZipMatchK (..), zipMatchViaEq)
 import Data.ZipMatchK.TH (deriveZipMatchK)
 import FreeFoilTypecheck.MiniML.FreeFoilConfig
-import qualified FreeFoilTypecheck.MiniML.Parser.Abs as Raw
-import qualified FreeFoilTypecheck.MiniML.Parser.Par as Raw
-import qualified FreeFoilTypecheck.MiniML.Parser.Print as Raw
+import FreeFoilTypecheck.MiniML.Parser.Abs qualified as Raw
+import FreeFoilTypecheck.MiniML.Parser.Par qualified as Raw
+import FreeFoilTypecheck.MiniML.Parser.Print qualified as Raw
 import FreeFoilTypecheck.ScopeCheck (checkClosed)
 import Generics.Kind.TH (deriveGenericK)
 

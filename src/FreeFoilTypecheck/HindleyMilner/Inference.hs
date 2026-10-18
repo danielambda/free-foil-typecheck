@@ -1,32 +1,21 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveFoldable #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE StandaloneDeriving #-}
 {-# OPTIONS_GHC -Wno-orphans -Wno-simplifiable-class-constraints #-}
 
 module FreeFoilTypecheck.HindleyMilner.Inference where
 
 import Control.Monad (ap)
-import qualified Control.Monad.Foil as Foil
-import qualified Control.Monad.Foil.Internal as Foil
-import qualified Control.Monad.Free.Foil as FreeFoil
+import Control.Monad.Foil qualified as Foil
+import Control.Monad.Foil.Internal qualified as Foil
+import Control.Monad.Free.Foil qualified as FreeFoil
 import Data.Bifunctor (Bifunctor (bimap))
-import qualified Data.Foldable as F
-import qualified Data.HashMap.Lazy as HashMap
+import Data.Foldable qualified as F
+import Data.HashMap.Lazy qualified as HashMap
 import qualified Data.Hashable
-import qualified Data.List as List
-import qualified Data.Map as Map
-import qualified Data.Set as Set
+import Data.List qualified as List
+import Data.Map qualified as Map
+import Data.Set qualified as Set
 import Data.ZipMatchK (zipMatch2)
 import Debug.Trace (trace)
-import qualified FreeFoilTypecheck.HindleyMilner.Parser.Abs as Raw
+import FreeFoilTypecheck.HindleyMilner.Parser.Abs qualified as Raw
 import FreeFoilTypecheck.HindleyMilner.Syntax
 
 -- $setup

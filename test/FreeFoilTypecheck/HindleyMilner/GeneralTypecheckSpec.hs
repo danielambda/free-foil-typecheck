@@ -1,11 +1,9 @@
-{-# LANGUAGE DataKinds #-}
-
 -- | Runs the generic engine ('FreeFoilTypecheck.GeneralTypecheck')
 -- on the same test programs as 'FreeFoilTypecheck.HindleyMilner.InferenceSpec'.
 module FreeFoilTypecheck.HindleyMilner.GeneralTypecheckSpec where
 
-import qualified Control.Monad.Foil as Foil
-import qualified Control.Monad.Free.Foil as FreeFoil
+import Control.Monad.Foil qualified as Foil
+import Control.Monad.Free.Foil qualified as FreeFoil
 import Control.Monad (forM_)
 import Data.Either (isLeft)
 import Data.List (isSuffixOf, sort)
@@ -22,7 +20,7 @@ import FreeFoilTypecheck.GeneralTypecheck
     inferTypeSchemeClosed,
   )
 import FreeFoilTypecheck.HindleyMilner.InferenceSpec (testFilesInDir)
-import qualified FreeFoilTypecheck.HindleyMilner.Parser.Abs as Raw
+import FreeFoilTypecheck.HindleyMilner.Parser.Abs qualified as Raw
 import FreeFoilTypecheck.HindleyMilner.Parser.Par (myLexer, pExp, pType)
 import FreeFoilTypecheck.HindleyMilner.Rules (fromTypeClosed, showHMType)
 import FreeFoilTypecheck.HindleyMilner.Syntax

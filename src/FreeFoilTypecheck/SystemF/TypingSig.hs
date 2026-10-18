@@ -1,26 +1,9 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE QuantifiedConstraints #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-{-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE DerivingStrategies #-}
 
 module FreeFoilTypecheck.SystemF.TypingSig where
 
-import Control.Monad.Foil (nameMapToScope)
-import qualified Control.Monad.Foil as Foil
-import Control.Monad.Free.Foil (unsinkAST)
-import qualified Control.Monad.Free.Foil as FreeFoil
+import Control.Monad.Foil hiding (AlphaEquiv)
+import Control.Monad.Free.Foil
 import FreeFoilTypecheck.SystemF.Syntax
 import FreeFoilTypecheck.SystemF.TypecheckGen
 
@@ -50,8 +33,8 @@ instance
       Term tt <- infer t
       case infer e of
         Right (Term (TForAll (FoilPatternVar x) bodyType)) -> do
-          let subst = Foil.addSubst Foil.identitySubst x tt
-          let actualType = FreeFoil.substitute (nameMapToScope scope) subst bodyType
+          let subst = addSubst identitySubst x tt
+          let actualType = substitute (nameMapToScope scope) subst bodyType
           (scope, Term actualType) `shouldBe` expectedType
         _ -> Left "expected a type abstraction"
 
@@ -59,17 +42,17 @@ instance
     EAbsSig body -> \case
       Term (TArrow x expectedBodyType) -> do
         Scoped c b <- infer (body (Just (Term x)))
-        case Foil.assertDistinct c of
-          Foil.Distinct -> do
+        case assertDistinct c of
+          Distinct -> do
             b' <- unsinkType scope b
             (scope, b') `shouldBe` Term expectedBodyType
       t -> Left $ "unexpected abstraction" <> show t
     -- Let binding
-    ELetSig e body -> \expectedType -> do
+    ELetSig e body -> \expectedType -> dodata Te3m
       etype <- infer e
-      check
-        (body (Just etype))
-        (triviallyScoped (nameMapToScope scope) expectedType)
+      let scopedExpectedType = withFresh (nameMapToScope scope) \binder ->
+            Scoped (FoilPatternVar binder) (sink expectedType)
+      check (body (Just etype)) scopedExpectedType
 
     -- Default case
     sig -> defaultCheckSig scope sig
@@ -110,7 +93,7 @@ instance
     -- T : Type
     ETypedSig e t -> do
       check t (Term TType)
-      let t' = Term (getTerm t)
+      let t' = undefined -- Term (getTerm t)
       check e t'
       return t'
 
@@ -118,8 +101,8 @@ instance
     ELetSig e body -> do
       a <- infer e
       Scoped c bodyType <- infer (body (Just a))
-      case Foil.assertDistinct c of
-        Foil.Distinct ->
+      case assertDistinct c of
+        Distinct ->
           unsinkType scope bodyType
 
     -- For loop
@@ -127,8 +110,8 @@ instance
       check e1 (Term TNat)
       check e2 (Term TNat)
       Scoped c bodyType <- infer (body (Just (Term TNat)))
-      case Foil.assertDistinct c of
-        Foil.Distinct ->
+      case assertDistinct c of
+        Distinct ->
           unsinkType scope bodyType
 
     -- Function application: Γ ⊢ t₁ t₂ ⇒ B
@@ -143,8 +126,8 @@ instance
       bodyType <- infer (body Nothing)
       case bodyType of
         Scoped (FoilPatternAsc x (Term argType)) bodyType' ->
-          case Foil.assertDistinct x of
-            Foil.Distinct -> do
+          case assertDistinct x of
+            Distinct -> do
               Term bodyType'' <- unsinkType scope bodyType'
               return (Term (TArrow argType bodyType''))
         _ -> Left "cannot infer type of unannotated lambda"
@@ -156,8 +139,8 @@ instance
       bodyType <- infer body
       case bodyType of
         Term (TForAll (FoilPatternVar x) bodyType') -> do
-          let subst = Foil.addSubst Foil.identitySubst x argType
-          let actualType = FreeFoil.substitute (nameMapToScope scope) subst bodyType'
+          let subst = addSubst identitySubst x argType
+          let actualType = substitute (nameMapToScope scope) subst bodyType'
           return $ Term actualType
         _ -> Left "expected a polymorphic type"
 
@@ -166,8 +149,8 @@ instance
     -- body = λx.x : X -> X
     ETAbsSig body -> do
       Scoped binder (Term typeOfBody) <- infer (body (Just (Term TType)))
-      case Foil.assertDistinct binder of
-        Foil.Distinct -> return (Term (TForAll binder typeOfBody))
+      case assertDistinct binder of
+        Distinct -> return (Term (TForAll binder typeOfBody))
 
     -- Type constructors
     TBoolSig -> Right (Term TType)
@@ -186,9 +169,9 @@ instance
       check r (Term TType)
       Right (Term TType)
 
-type Context n = Foil.NameMap n (Term n)
+type Context n = NameMap n (Term n)
 
-type Context' ty n = Foil.NameMap n (ty n)
+type Context' ty n = NameMap n (ty n)
 
 --------------------------------------------------------------------------------
 
@@ -197,14 +180,14 @@ type Context' ty n = Foil.NameMap n (ty n)
 --------------------------------------------------------------------------------
 
 -- | Unsink a type from a larger scope to a smaller one
-unsinkType :: (Foil.Distinct l) => Context n -> Term l -> Either String (Term n)
+unsinkType :: (Distinct l) => Context n -> Term l -> Either String (Term n)
 unsinkType scope type_ = do
   case unsinkAST (nameMapToScope scope) (convertTermToAST type_) of
     Nothing -> Left "dependent types!"
     Just type'' -> return (Term type'')
 
 -- | Convert Term to AST
-convertTermToAST :: Term n -> FreeFoil.AST (FoilPattern Term) TermSig n
+convertTermToAST :: Term n -> AST (FoilPattern Term) TermSig n
 convertTermToAST (Term ast) = ast
 
 --------------------------------------------------------------------------------
@@ -212,12 +195,6 @@ convertTermToAST (Term ast) = ast
 -- * Typeclass Instances
 
 --------------------------------------------------------------------------------
-
-instance HasTrivialBinder (FoilPattern Term) where
-  triviallyScoped scope type_ =
-    case triviallyScoped scope type_ of
-      Scoped binder type' ->
-        Scoped (FoilPatternVar binder) type'
 
 instance TypedPattern ty (FoilPattern ty) where
   extractPatternType (FoilPatternVar _) = Nothing

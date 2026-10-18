@@ -1,5 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeApplications #-}
 module FreeFoilTypecheck.SystemF.Interpret where
 
 import Control.Monad.Foil (emptyNameMap)

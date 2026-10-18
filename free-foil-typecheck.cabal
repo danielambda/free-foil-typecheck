@@ -1,6 +1,6 @@
 cabal-version: 1.24
 
--- This file has been generated from package.yaml by hpack version 0.39.1.
+-- This file has been generated from package.yaml by hpack version 0.39.6.
 --
 -- see: https://github.com/sol/hpack
 
@@ -68,6 +68,11 @@ library
       Paths_free_foil_typecheck
   hs-source-dirs:
       src
+  default-extensions:
+      BlockArguments
+      DataKinds
+      ImportQualifiedPost
+      QuantifiedConstraints
   ghc-options: -Wall -Werror
   build-tools:
       alex >=3.2.4
@@ -83,12 +88,17 @@ library
     , hashable >=1.4.0
     , kind-generics-th
     , unordered-containers >=0.2.20
-  default-language: Haskell2010
+  default-language: GHC2024
 
 executable interpreter-hm
   main-is: Interpreter.hs
   hs-source-dirs:
       app/HindleyMilner
+  default-extensions:
+      BlockArguments
+      DataKinds
+      ImportQualifiedPost
+      QuantifiedConstraints
   ghc-options: -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
   build-tools:
       alex >=3.2.4
@@ -105,12 +115,17 @@ executable interpreter-hm
     , hashable >=1.4.0
     , kind-generics-th
     , unordered-containers >=0.2.20
-  default-language: Haskell2010
+  default-language: GHC2024
 
 executable interpreter-sf
   main-is: Interpreter.hs
   hs-source-dirs:
       app/SystemF
+  default-extensions:
+      BlockArguments
+      DataKinds
+      ImportQualifiedPost
+      QuantifiedConstraints
   ghc-options: -Wall -Werror
   build-tools:
       alex >=3.2.4
@@ -127,12 +142,17 @@ executable interpreter-sf
     , hashable >=1.4.0
     , kind-generics-th
     , unordered-containers >=0.2.20
-  default-language: Haskell2010
+  default-language: GHC2024
 
 executable repl-hm
   main-is: Repl.hs
   hs-source-dirs:
       app/HindleyMilner
+  default-extensions:
+      BlockArguments
+      DataKinds
+      ImportQualifiedPost
+      QuantifiedConstraints
   ghc-options: -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
   build-tools:
       alex >=3.2.4
@@ -149,12 +169,17 @@ executable repl-hm
     , hashable >=1.4.0
     , kind-generics-th
     , unordered-containers >=0.2.20
-  default-language: Haskell2010
+  default-language: GHC2024
 
 executable repl-sf
   main-is: Repl.hs
   hs-source-dirs:
       app/SystemF
+  default-extensions:
+      BlockArguments
+      DataKinds
+      ImportQualifiedPost
+      QuantifiedConstraints
   ghc-options: -Wall -Werror
   build-tools:
       alex >=3.2.4
@@ -171,7 +196,7 @@ executable repl-sf
     , hashable >=1.4.0
     , kind-generics-th
     , unordered-containers >=0.2.20
-  default-language: Haskell2010
+  default-language: GHC2024
 
 test-suite doctests
   type: exitcode-stdio-1.0
@@ -179,6 +204,11 @@ test-suite doctests
   hs-source-dirs:
       src/
       test/doctests
+  default-extensions:
+      BlockArguments
+      DataKinds
+      ImportQualifiedPost
+      QuantifiedConstraints
   ghc-options: -Wall -Werror
   build-tools:
       alex >=3.2.4
@@ -196,7 +226,7 @@ test-suite doctests
     , hashable >=1.4.0
     , kind-generics-th
     , unordered-containers >=0.2.20
-  default-language: Haskell2010
+  default-language: GHC2024
 
 test-suite spec
   type: exitcode-stdio-1.0
@@ -212,6 +242,11 @@ test-suite spec
       Paths_free_foil_typecheck
   hs-source-dirs:
       test
+  default-extensions:
+      BlockArguments
+      DataKinds
+      ImportQualifiedPost
+      QuantifiedConstraints
   ghc-options: -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
   build-tools:
       alex >=3.2.4
@@ -233,7 +268,7 @@ test-suite spec
     , hspec-discover
     , kind-generics-th
     , unordered-containers >=0.2.20
-  default-language: Haskell2010
+  default-language: GHC2024
 
 benchmark generalization
   type: exitcode-stdio-1.0
@@ -242,6 +277,11 @@ benchmark generalization
       Paths_free_foil_typecheck
   hs-source-dirs:
       bench
+  default-extensions:
+      BlockArguments
+      DataKinds
+      ImportQualifiedPost
+      QuantifiedConstraints
   ghc-options: -Wall -Werror -O2 -fproc-alignment=64 -rtsopts -with-rtsopts=-A32m
   build-tools:
       alex >=3.2.4
@@ -261,4 +301,4 @@ benchmark generalization
     , tasty
     , tasty-bench
     , unordered-containers >=0.2.20
-  default-language: Haskell2010
+  default-language: GHC2024

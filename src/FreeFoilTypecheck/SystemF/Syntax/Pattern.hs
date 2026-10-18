@@ -1,21 +1,12 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module FreeFoilTypecheck.SystemF.Syntax.Pattern where
 
-import qualified Control.Monad.Foil as Foil
+import Control.Monad.Foil qualified as Foil
 import Data.Map (Map)
-import qualified Data.Map as Map
-import qualified FreeFoilTypecheck.SystemF.Parser.Abs as Raw
+import Data.Map qualified as Map
+import FreeFoilTypecheck.SystemF.Parser.Abs qualified as Raw
 import Generics.Kind.TH (deriveGenericK)
 
 -- ** Scope-safe patterns

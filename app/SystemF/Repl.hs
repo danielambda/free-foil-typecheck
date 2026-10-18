@@ -1,5 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeApplications #-}
 module Main where
 
 import Control.Monad.Foil (emptyNameMap)

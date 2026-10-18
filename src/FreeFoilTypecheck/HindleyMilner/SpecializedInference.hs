@@ -1,8 +1,3 @@
-{-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE LambdaCase #-}
-
 -- | Hindley–Milner type inference for the HM language: the generic engine
 -- ("FreeFoilTypecheck.GeneralTypecheck") with level-based generalisation,
 -- specialised to this language by hand. The algorithm and the order of its
@@ -50,11 +45,11 @@ module FreeFoilTypecheck.HindleyMilner.SpecializedInference
 where
 
 import Control.Monad (ap)
-import qualified Control.Monad.Foil as Foil
-import qualified Control.Monad.Free.Foil as FreeFoil
-import qualified Data.IntMap as IntMap
-import qualified Data.Map as Map
-import qualified FreeFoilTypecheck.HindleyMilner.Parser.Abs as Raw
+import Control.Monad.Foil qualified as Foil
+import Control.Monad.Free.Foil qualified as FreeFoil
+import Data.IntMap qualified as IntMap
+import Data.Map qualified as Map
+import FreeFoilTypecheck.HindleyMilner.Parser.Abs qualified as Raw
 import FreeFoilTypecheck.HindleyMilner.Syntax
 import FreeFoilTypecheck.MetaVar
 
