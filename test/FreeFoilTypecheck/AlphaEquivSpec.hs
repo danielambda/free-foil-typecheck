@@ -2,10 +2,10 @@
 
 module FreeFoilTypecheck.AlphaEquivSpec where
 
-import qualified Control.Monad.Foil as Foil
-import qualified Control.Monad.Free.Foil as FreeFoil
-import qualified FreeFoilTypecheck.HindleyMilner.Syntax as HM
-import qualified FreeFoilTypecheck.SystemF.Syntax.Term as SystemF
+import Control.Monad.Foil qualified as Foil
+import Control.Monad.Free.Foil qualified as FreeFoil
+import FreeFoilTypecheck.HindleyMilner.Syntax qualified as HM
+import FreeFoilTypecheck.SystemF.Syntax.Term qualified as SystemF
 import Test.Hspec
 
 spec :: Spec

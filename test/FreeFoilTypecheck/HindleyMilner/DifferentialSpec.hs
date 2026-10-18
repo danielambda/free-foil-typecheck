@@ -1,5 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-
 -- | Differential tests: the generic engine (with level-based and with naive
 -- generalisation), the original, unoptimised engine
 -- ('FreeFoilTypecheck.HindleyMilner.Inference') and the hand-specialised
@@ -18,13 +16,13 @@ import FreeFoilTypecheck.GeneralTypecheck
     inferTypeSchemeClosed,
   )
 import FreeFoilTypecheck.HindleyMilner.GeneralTypecheckSpec (openForAlls)
-import qualified FreeFoilTypecheck.HindleyMilner.Inference as Original
+import FreeFoilTypecheck.HindleyMilner.Inference qualified as Original
 import FreeFoilTypecheck.HindleyMilner.InferenceSpec (testFilesInDir)
-import qualified FreeFoilTypecheck.HindleyMilner.Parser.Abs as Raw
+import FreeFoilTypecheck.HindleyMilner.Parser.Abs qualified as Raw
 import FreeFoilTypecheck.HindleyMilner.Parser.Par (myLexer, pExp)
 import FreeFoilTypecheck.HindleyMilner.Parser.Print (printTree)
 import FreeFoilTypecheck.HindleyMilner.Rules (fromTypeClosed, showHMType)
-import qualified FreeFoilTypecheck.HindleyMilner.SpecializedInference as Specialized
+import FreeFoilTypecheck.HindleyMilner.SpecializedInference qualified as Specialized
 import FreeFoilTypecheck.HindleyMilner.Syntax
 import Test.Hspec
 import Test.Hspec.QuickCheck (modifyMaxSuccess, prop)

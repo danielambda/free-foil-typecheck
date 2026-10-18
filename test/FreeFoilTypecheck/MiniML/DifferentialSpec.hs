@@ -3,7 +3,7 @@
 module FreeFoilTypecheck.MiniML.DifferentialSpec where
 
 import FreeFoilTypecheck.GeneralTypecheck (Generalization (..), equivUpToRenaming, inferTypeSchemeClosed)
-import qualified FreeFoilTypecheck.MiniML.Parser.Abs as Raw
+import FreeFoilTypecheck.MiniML.Parser.Abs qualified as Raw
 import FreeFoilTypecheck.MiniML.Parser.Print (printTree)
 import FreeFoilTypecheck.MiniML.Rules (showHMType)
 import FreeFoilTypecheck.MiniML.Syntax (toExpClosed)

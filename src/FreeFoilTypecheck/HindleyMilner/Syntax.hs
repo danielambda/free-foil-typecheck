@@ -1,33 +1,27 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module FreeFoilTypecheck.HindleyMilner.Syntax where
 
-import qualified Control.Monad.Foil as Foil
+import Control.Monad.Foil qualified as Foil
 import Control.Monad.Foil.TH
 import Control.Monad.Free.Foil
 import Control.Monad.Free.Foil.TH
 import Data.Bifunctor.TH
 import Data.Bifunctor.Sum(Sum(..))
 import Data.Map (Map)
-import qualified Data.Kind as K
-import qualified Data.Map as Map
+import Data.Kind qualified as K
+import Data.Map qualified as Map
 import Data.String (IsString (..))
 import Data.ZipMatchK (ZipMatchK (..), zipMatchViaEq)
 import Data.ZipMatchK.TH (deriveZipMatchK)
 import Generics.Kind.TH (deriveGenericK)
-import qualified FreeFoilTypecheck.HindleyMilner.Parser.Abs as Raw
-import qualified FreeFoilTypecheck.HindleyMilner.Parser.Par as Raw
-import qualified FreeFoilTypecheck.HindleyMilner.Parser.Print as Raw
+import FreeFoilTypecheck.HindleyMilner.Parser.Abs qualified as Raw
+import FreeFoilTypecheck.HindleyMilner.Parser.Par qualified as Raw
+import FreeFoilTypecheck.HindleyMilner.Parser.Print qualified as Raw
 import FreeFoilTypecheck.Orphans ()
 import FreeFoilTypecheck.ScopeCheck (checkClosed)
 

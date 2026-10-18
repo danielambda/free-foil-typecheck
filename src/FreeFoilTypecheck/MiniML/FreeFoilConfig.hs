@@ -8,7 +8,7 @@
 module FreeFoilTypecheck.MiniML.FreeFoilConfig where
 
 import Control.Monad.Free.Foil.TH.MkFreeFoil
-import qualified FreeFoilTypecheck.MiniML.Parser.Abs as Raw
+import FreeFoilTypecheck.MiniML.Parser.Abs qualified as Raw
 
 -- | Names of bound variables when converting back to raw syntax.
 intToIdent :: Int -> Raw.Ident

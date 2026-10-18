@@ -1,16 +1,4 @@
-{-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveFoldable #-}
-{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE ViewPatterns #-}
 
@@ -49,17 +37,17 @@
 module FreeFoilTypecheck.GeneralTypecheck where
 
 import Control.Monad (ap)
-import qualified Control.Monad.Foil as Foil
-import qualified Control.Monad.Foil.Internal as Foil
-import qualified Control.Monad.Foil.Relative as Foil
-import qualified Control.Monad.Free.Foil as FreeFoil
+import Control.Monad.Foil qualified as Foil
+import Control.Monad.Foil.Internal qualified as Foil
+import Control.Monad.Foil.Relative qualified as Foil
+import Control.Monad.Free.Foil qualified as FreeFoil
 import Data.Bifoldable
 import Data.Bifunctor
 import Data.Bifunctor.Sum
 import Data.Bifunctor.TH
 import Data.Bitraversable (Bitraversable (..))
-import qualified Data.Foldable as F
-import qualified Data.Kind as K
+import Data.Foldable qualified as F
+import Data.Kind qualified as K
 import Data.ZipMatchK (Mappings (..), ZipMatchK (..), zipMatch2)
 import Data.ZipMatchK.Bifunctor ()
 import FreeFoilTypecheck.MetaVar

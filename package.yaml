@@ -37,6 +37,14 @@ ghc-options:
   - -Wall
   - -Werror
 
+default-language: GHC2024
+
+default-extensions:
+  - BlockArguments
+  - DataKinds
+  - ImportQualifiedPost
+  - QuantifiedConstraints
+
 library:
   source-dirs: src
   when:

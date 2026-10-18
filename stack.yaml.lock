@@ -20,7 +20,7 @@ packages:
     hackage: kind-generics-th-0.2.3.3@sha256:c53280116db0dab9891f5a531679073f0b1f9ba6b8a3399bca11d98c506d0c62,1578
 snapshots:
 - completed:
-    sha256: f139fd3b951e8b16a316f4a5415e1cdbf1eba392409d1f253e7d5a0069a4b3fa
-    size: 732462
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/24/63.yaml
-  original: lts-24.63
+    sha256: b7dc388c75a62a8a2f1ac753f3bfc3f43a3a2cb58d8a920272cc9a049ff76c62
+    size: 726792
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/24/29.yaml
+  original: lts-24.29
