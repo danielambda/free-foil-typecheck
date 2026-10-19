@@ -48,7 +48,7 @@ instance
             (scope, b') `shouldBe` Term expectedBodyType
       t -> Left $ "unexpected abstraction" <> show t
     -- Let binding
-    ELetSig e body -> \expectedType -> dodata Te3m
+    ELetSig e body -> \expectedType -> do
       etype <- infer e
       let scopedExpectedType = withFresh (nameMapToScope scope) \binder ->
             Scoped (FoilPatternVar binder) (sink expectedType)

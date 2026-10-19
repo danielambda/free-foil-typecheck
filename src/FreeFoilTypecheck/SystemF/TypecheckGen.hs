@@ -14,7 +14,7 @@ module FreeFoilTypecheck.SystemF.TypecheckGen
   , shouldBe
   ) where
 
-import Control.Monad (unless)
+import Control.Monad (unless, void)
 import Control.Monad.Foil hiding (AlphaEquiv)
 import Control.Monad.Free.Foil qualified as FreeFoil (alphaEquiv)
 import Control.Monad.Foil.Relative
@@ -32,7 +32,7 @@ class
   checkSig ::
     (Distinct n) =>
     Context' ty n ->
-    sig (ScopedCheckInfer binder ty n) (CheckInfer ty n) ->
+    sig (ScopedCheckInfer binder sig ty n) (CheckInfer binder sig ty n) ->
     ty n ->
     Either String ()
   checkSig = defaultCheckSig
@@ -40,13 +40,13 @@ class
   inferSig ::
     (Distinct n) =>
     Context' ty n ->
-    sig (ScopedCheckInfer binder ty n) (CheckInfer ty n) ->
+    sig (ScopedCheckInfer binder sig ty n) (CheckInfer binder sig ty n) ->
     Either String (ty n)
 
 defaultCheckSig ::
   (TypingSig binder ty sig, Distinct n) =>
   Context' ty n ->
-  sig (ScopedCheckInfer binder ty n) (CheckInfer ty n) ->
+  sig (ScopedCheckInfer binder sig ty n) (CheckInfer binder sig ty n) ->
   ty n ->
   Either String ()
 defaultCheckSig ctx node expectedType = do
@@ -67,7 +67,7 @@ bidirectionalInfer ::
   ) =>
   Context' ty n ->
   AST binder sig n ->
-  Either String (ty n)
+  Either String (TypedAST binder sig ty n)
 bidirectionalInfer scope t = infer $ bidirectionalCheckInfer scope t
 
 bidirectionalCheck ::
@@ -84,7 +84,7 @@ bidirectionalCheck ::
   Context' ty n ->
   AST binder sig n ->
   ty n -> Either String ()
-bidirectionalCheck scope t = check $ bidirectionalCheckInfer scope t
+bidirectionalCheck scope t = (void .) . check $ bidirectionalCheckInfer scope t
 
 bidirectionalCheckInfer ::
   forall ty binder sig n.
@@ -98,15 +98,16 @@ bidirectionalCheckInfer ::
   ) =>
   Context' ty n ->
   AST binder sig n ->
-  CheckInfer ty n
+  CheckInfer binder sig ty n
 bidirectionalCheckInfer scope = \case
   Var n ->
     let inferredType = lookupName n scope
     in CheckInfer
-      { infer = pure inferredType
-      , check = \expectedType ->
+      { infer = pure $ TypedVar n inferredType
+      , check = \expectedType -> do
           unless (alphaEquiv (nameMapToScope scope) inferredType expectedType) do
             Left (show (TypeErrorUnexpectedType inferredType expectedType))
+          pure $ TypedVar n inferredType
       }
   Node node ->
     let node' = bimap
@@ -114,8 +115,11 @@ bidirectionalCheckInfer scope = \case
           (bidirectionalCheckInfer scope)
           node
     in CheckInfer
-        { infer = inferSig scope node'
-        , check = checkSig scope node'
+        { infer = do
+          ty <- inferSig scope node'
+          pure $ typedWith ty node
+        , check = do
+          checkSig scope node'
         }
 
 bidirectionalCheckInferScoped ::
@@ -129,7 +133,7 @@ bidirectionalCheckInferScoped ::
   ) =>
   Context' ty n ->
   Scoped binder (AST binder sig) n ->
-  ScopedCheckInfer binder ty n
+  ScopedCheckInfer binder sig ty n
 bidirectionalCheckInferScoped scope (Scoped binder body) =
   case (assertExt binder, assertDistinct binder) of
     (Ext, Distinct) -> \mbinderType -> CheckInfer
@@ -181,12 +185,41 @@ data TypeError ty
   | TypeErrorUnexpectedDependentType
   deriving (Show)
 
-data CheckInfer ty n = CheckInfer
-  { check :: ty n -> Either String ()
-  , infer :: Either String (ty n)
+data TypedAST binder sig ty n where
+  TypedVar :: Name n -> ty n -> TypedAST binder sig ty n
+  TypedNode ::
+    sig (ScopedTypedAST binder sig ty n) (TypedAST binder sig ty n) ->
+    ty n ->
+    TypedAST binder sig ty n
+
+type ScopedTypedAST binder sig ty n = Scoped binder (TypedAST binder sig ty) n
+
+typeOf :: TypedAST binder sig ty n -> ty n
+typeOf (TypedVar _ ty) = ty
+typeOf (TypedNode _ ty) = ty
+
+typedWith ::
+  ty n ->
+  sig (ScopedAST binder sig n) (AST binder sig n) ->
+  sig (ScopedTypedAST binder sig ty n) (TypedAST binder sig ty n)
+typedWith ty = bimap typedWithScopedAST typedWithAST
+
+typedWithAST ::
+  ty n ->
+  AST binder sig n ->
+  TypedAST binder sig ty n
+typedWithAST ty = \case
+  Var n -> TypedVar n ty
+  Node n -> TypedNode undefined ty
+
+data CheckInfer binder sig ty n = CheckInfer
+  { check :: ty n -> Either String (TypedAST binder sig ty n)
+  , infer :: Either String (TypedAST binder sig ty n)
+  -- { check :: ty n -> Either String ()
+  -- , infer :: Either String (ty n)
   }
 
-type ScopedCheckInfer binder ty n = Maybe (ty n) -> CheckInfer (Scoped binder ty) n
+type ScopedCheckInfer binder sig ty n = Maybe (ty n) -> CheckInfer binder sig (Scoped binder ty) n
 
 -- | Typed name binders data structure
 data TypedNameBinders ty n l where
