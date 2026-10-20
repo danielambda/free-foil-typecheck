@@ -1,7 +1,7 @@
 module FreeFoilTypecheck.SystemF.TypecheckGen
   ( Context'
   , AlphaEquiv(..)
-  , TypingSig(..)
+  , TypingSig(..), toAST
   , defaultCheckSig
   , TypedPattern(..)
   , bidirectionalCheck
@@ -10,11 +10,16 @@ module FreeFoilTypecheck.SystemF.TypecheckGen
   , mapBinder
   , TypeError(..)
   , TypedNameBinders(..)
+  , TypedAST(..)
+  , ScopedTypedAST
+  , typeOf
   , CheckInfer(..)
+  , ScopedCheckInfer
+  , ScopedCheckInfer'(..)
   , shouldBe
   ) where
 
-import Control.Monad (unless, void)
+import Control.Monad (unless)
 import Control.Monad.Foil hiding (AlphaEquiv)
 import Control.Monad.Free.Foil qualified as FreeFoil (alphaEquiv)
 import Control.Monad.Foil.Relative
@@ -34,25 +39,26 @@ class
     Context' ty n ->
     sig (ScopedCheckInfer binder sig ty n) (CheckInfer binder sig ty n) ->
     ty n ->
-    Either String ()
+    Either String (TypedAST binder sig ty n)
   checkSig = defaultCheckSig
 
   inferSig ::
     (Distinct n) =>
     Context' ty n ->
     sig (ScopedCheckInfer binder sig ty n) (CheckInfer binder sig ty n) ->
-    Either String (ty n)
+    Either String (TypedAST binder sig ty n)
 
 defaultCheckSig ::
   (TypingSig binder ty sig, Distinct n) =>
   Context' ty n ->
   sig (ScopedCheckInfer binder sig ty n) (CheckInfer binder sig ty n) ->
   ty n ->
-  Either String ()
+  Either String (TypedAST binder sig ty n)
 defaultCheckSig ctx node expectedType = do
-  inferredType <- inferSig ctx node
-  unless (alphaEquiv (nameMapToScope ctx) inferredType expectedType) $
-    Left (show (TypeErrorUnexpectedType inferredType expectedType))
+  typed <- inferSig ctx node
+  unless (alphaEquiv (nameMapToScope ctx) (typeOf typed) expectedType) $
+    Left (show (TypeErrorUnexpectedType (typeOf typed) expectedType))
+  pure typed
 
 bidirectionalInfer ::
   forall ty binder sig n.
@@ -83,8 +89,8 @@ bidirectionalCheck ::
   ) =>
   Context' ty n ->
   AST binder sig n ->
-  ty n -> Either String ()
-bidirectionalCheck scope t = (void .) . check $ bidirectionalCheckInfer scope t
+  ty n -> Either String (TypedAST binder sig ty n)
+bidirectionalCheck scope t = check $ bidirectionalCheckInfer scope t
 
 bidirectionalCheckInfer ::
   forall ty binder sig n.
@@ -115,11 +121,8 @@ bidirectionalCheckInfer scope = \case
           (bidirectionalCheckInfer scope)
           node
     in CheckInfer
-        { infer = do
-          ty <- inferSig scope node'
-          pure $ typedWith ty node
-        , check = do
-          checkSig scope node'
+        { infer = inferSig scope node'
+        , check = checkSig scope node'
         }
 
 bidirectionalCheckInferScoped ::
@@ -136,12 +139,12 @@ bidirectionalCheckInferScoped ::
   ScopedCheckInfer binder sig ty n
 bidirectionalCheckInferScoped scope (Scoped binder body) =
   case (assertExt binder, assertDistinct binder) of
-    (Ext, Distinct) -> \mbinderType -> CheckInfer
-      { infer = do
+    (Ext, Distinct) -> \mbinderType -> ScopedCheckInfer'
+      { scopedInfer = do
           ty <- extractTypeFromBinder scope binder mbinderType
           let scope' = sink <$> addNameBinder (extractExactlyOneBinder binder ty) ty scope
           Scoped binder <$> bidirectionalInfer scope' body
-      , check = \(Scoped binder' expectedType) -> do
+      , scopedCheck = \(Scoped binder' expectedType) -> do
           -- TODO: check binder' against binder
           ty <- extractTypeFromBinder scope binder mbinderType
           case unifyPatterns binder binder' of
@@ -149,13 +152,15 @@ bidirectionalCheckInferScoped scope (Scoped binder body) =
               let scope' =
                     sink <$> addNameBinder (extractExactlyOneBinder binder ty) ty scope
               let ci = bidirectionalCheckInfer scope' body
-              check ci expectedType
+              b' <- check ci expectedType
+              pure $ Scoped binder b'
             RenameLeftNameBinder _binders renameL ->
               case (assertExt binder', assertDistinct binder') of
                 (Ext, Distinct) -> do
                   let scope' = sink <$> addNameBinder (extractExactlyOneBinder binder' ty) ty scope
                   let body' = liftRM (nameMapToScope scope') (fromNameBinderRenaming renameL) body
-                  bidirectionalCheck scope' body' expectedType
+                  b' <- bidirectionalCheck scope' body' expectedType
+                  pure $ Scoped binder' b'
             -- FIXME: RenameRightNameBinder, RenameBothNameBinders
             _ -> Left "non-unifiable patterns"
       }
@@ -198,28 +203,31 @@ typeOf :: TypedAST binder sig ty n -> ty n
 typeOf (TypedVar _ ty) = ty
 typeOf (TypedNode _ ty) = ty
 
-typedWith ::
-  ty n ->
-  sig (ScopedAST binder sig n) (AST binder sig n) ->
-  sig (ScopedTypedAST binder sig ty n) (TypedAST binder sig ty n)
-typedWith ty = bimap typedWithScopedAST typedWithAST
+toAST :: (Bifunctor sig) => TypedAST binder sig ty n -> AST binder sig n
+toAST (TypedVar n _) = Var n
+toAST (TypedNode n _) = Node (bimap toScopedAST toAST n)
 
-typedWithAST ::
-  ty n ->
-  AST binder sig n ->
-  TypedAST binder sig ty n
-typedWithAST ty = \case
-  Var n -> TypedVar n ty
-  Node n -> TypedNode undefined ty
+toScopedAST :: (Bifunctor sig) => Scoped binder (TypedAST binder sig ty) n -> ScopedAST binder sig n
+toScopedAST (Scoped binder typedAST) = ScopedAST binder (toAST typedAST)
 
 data CheckInfer binder sig ty n = CheckInfer
   { check :: ty n -> Either String (TypedAST binder sig ty n)
   , infer :: Either String (TypedAST binder sig ty n)
-  -- { check :: ty n -> Either String ()
-  -- , infer :: Either String (ty n)
   }
 
-type ScopedCheckInfer binder sig ty n = Maybe (ty n) -> CheckInfer binder sig (Scoped binder ty) n
+-- | Bidirectional check/infer for a scoped subterm.
+--
+-- The annotation (a 'Maybe' type for the bound variable) is supplied by the
+-- parent typing rule. The resulting check/infer actions return the typed body
+-- wrapped back in its binder, so the parent rule can recover both.
+data ScopedCheckInfer' binder sig ty n = ScopedCheckInfer'
+  { scopedCheck ::
+      Scoped binder ty n ->
+      Either String (Scoped binder (TypedAST binder sig ty) n)
+  , scopedInfer :: Either String (Scoped binder (TypedAST binder sig ty) n)
+  }
+
+type ScopedCheckInfer binder sig ty n = Maybe (ty n) -> ScopedCheckInfer' binder sig ty n
 
 -- | Typed name binders data structure
 data TypedNameBinders ty n l where
@@ -299,4 +307,3 @@ shouldBe (scope, actualType) expectedType =
       , "  " ++ show actualType
       , "when typechecking expression"
       ]
-
