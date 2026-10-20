@@ -7,6 +7,11 @@ import Control.Monad.Free.Foil
 import FreeFoilTypecheck.SystemF.Syntax
 import FreeFoilTypecheck.SystemF.TypecheckGen
 
+deriving instance Show (TermSig (ScopedTypedAST (FoilPattern Term) TermSig Term n) (TypedAST (FoilPattern Term) TermSig Term n))
+deriving instance Show (FoilPattern Term n l)
+deriving instance Show (TypedAST (FoilPattern Term) TermSig Term n)
+deriving instance Show (ScopedTypedAST (FoilPattern Term) TermSig Term n)
+
 --------------------------------------------------------------------------------
 
 -- * TypingSig Instance for System F
