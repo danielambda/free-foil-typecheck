@@ -5,8 +5,8 @@ import FreeFoilTypecheck.SystemF.Eval
 import FreeFoilTypecheck.SystemF.Parser.Par
 import FreeFoilTypecheck.SystemF.Syntax (toTermClosed, Term(..))
 import FreeFoilTypecheck.SystemF.Typecheck (inferType)
-import FreeFoilTypecheck.SystemF.TypecheckGen (bidirectionalInfer)
-import FreeFoilTypecheck.SystemF.TypingSig ()
+import FreeFoilTypecheck.SystemF.TypecheckGen (bidirectionalInfer, Context (..))
+import FreeFoilTypecheck.SystemF.TypingSig (Typecheck (..))
 
 data Result
   = Success String -- Output of evaluation.
@@ -35,7 +35,7 @@ interpretGen :: String -> Result
 interpretGen input =
   case toTermClosed <$> pTerm tokens of
     Left err -> Failure ParsingError ("Parsing error: " ++ err)
-    Right et@(Term e) -> case bidirectionalInfer @Term emptyNameMap e of
+    Right et@(Term e) -> case runTypecheck (bidirectionalInfer @Term e) (Context emptyNameMap) of
       Left err -> Failure TypecheckingError ("Typechecking error: " ++ err)
       Right _type -> case newEval emptyNameMap et of
         Left err -> Failure EvaluationError ("Evaluation error: " ++ err)

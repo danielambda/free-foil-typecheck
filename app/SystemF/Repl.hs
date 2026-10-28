@@ -6,7 +6,7 @@ import FreeFoilTypecheck.SystemF.Parser.Par
 import FreeFoilTypecheck.SystemF.Syntax (Term (..), toTermClosed)
 import FreeFoilTypecheck.SystemF.Typecheck
 import FreeFoilTypecheck.SystemF.TypecheckGen
-import FreeFoilTypecheck.SystemF.TypingSig ()
+import FreeFoilTypecheck.SystemF.TypingSig (Typecheck (runTypecheck))
 
 -- main :: IO ()
 -- main = getArgs >>= \case
@@ -21,7 +21,7 @@ main :: IO ()
 main = do
   let example = "let id = (ΛX. λx:X. x) in id : forall Y. Y -> Y"
   Right (Term a) <- pure $ toTermClosed <$> pTerm (myLexer example)
-  Right b <- pure $ bidirectionalInfer @Term emptyNameMap a
+  Right b <- pure $ runTypecheck (bidirectionalInfer @Term a) (Context emptyNameMap)
 
   print b
   pure ()
@@ -42,7 +42,7 @@ genRepl :: String -> String
 genRepl input =
   case toTermClosed <$> pTerm tokens of
     Left err -> "Parsing error: " ++ err
-    Right et@(Term e) -> case bidirectionalInfer @Term emptyNameMap e of
+    Right et@(Term e) -> case runTypecheck (bidirectionalInfer @Term e) (Context emptyNameMap) of
       Left err -> "Typechecking error: " ++ err
       Right _type -> case newEval emptyNameMap et of
         Left err -> "Evaluation error: " ++ err

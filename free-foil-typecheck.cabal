@@ -1,6 +1,6 @@
 cabal-version: 1.24
 
--- This file has been generated from package.yaml by hpack version 0.39.6.
+-- This file has been generated from package.yaml by hpack version 0.38.3.
 --
 -- see: https://github.com/sol/hpack
 
@@ -87,6 +87,8 @@ library
     , free-foil >=0.5.0 && <0.6
     , hashable >=1.4.0
     , kind-generics-th
+    , mtl
+    , transformers
     , unordered-containers >=0.2.20
   default-language: GHC2024
 
@@ -114,6 +116,8 @@ executable interpreter-hm
     , free-foil-typecheck
     , hashable >=1.4.0
     , kind-generics-th
+    , mtl
+    , transformers
     , unordered-containers >=0.2.20
   default-language: GHC2024
 
@@ -141,6 +145,8 @@ executable interpreter-sf
     , free-foil-typecheck
     , hashable >=1.4.0
     , kind-generics-th
+    , mtl
+    , transformers
     , unordered-containers >=0.2.20
   default-language: GHC2024
 
@@ -168,6 +174,8 @@ executable repl-hm
     , free-foil-typecheck
     , hashable >=1.4.0
     , kind-generics-th
+    , mtl
+    , transformers
     , unordered-containers >=0.2.20
   default-language: GHC2024
 
@@ -195,6 +203,8 @@ executable repl-sf
     , free-foil-typecheck
     , hashable >=1.4.0
     , kind-generics-th
+    , mtl
+    , transformers
     , unordered-containers >=0.2.20
   default-language: GHC2024
 
@@ -225,6 +235,8 @@ test-suite doctests
     , free-foil-typecheck
     , hashable >=1.4.0
     , kind-generics-th
+    , mtl
+    , transformers
     , unordered-containers >=0.2.20
   default-language: GHC2024
 
@@ -267,6 +279,8 @@ test-suite spec
     , hspec
     , hspec-discover
     , kind-generics-th
+    , mtl
+    , transformers
     , unordered-containers >=0.2.20
   default-language: GHC2024
 
@@ -298,7 +312,9 @@ benchmark generalization
     , free-foil-typecheck
     , hashable >=1.4.0
     , kind-generics-th
+    , mtl
     , tasty
     , tasty-bench
+    , transformers
     , unordered-containers >=0.2.20
   default-language: GHC2024

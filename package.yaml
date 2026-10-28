@@ -13,10 +13,10 @@ extra-source-files:
 
 custom-setup:
   dependencies:
-    base: ">= 4.11.0.0 && < 5.0"
-    process: ">= 1.6.3.0"
     Cabal: ">= 2.4.0.1 && < 4.0"
     PyF:
+    base: ">= 4.11.0.0 && < 5.0"
+    process: ">= 1.6.3.0"
 
 build-tools:
   BNFC:bnfc: ">= 2.9.4.1"
@@ -24,20 +24,22 @@ build-tools:
   happy: ">= 1.19.9"
 
 dependencies:
-  base: ">= 4.7 && < 5"
   array: ">= 0.5.3.0"
+  base: ">= 4.7 && < 5"
   bifunctors:
   containers:
   free-foil: ">= 0.5.0 && < 0.6"
-  kind-generics-th:
-  unordered-containers: ">= 0.2.20"
   hashable: ">= 1.4.0"
+  kind-generics-th:
+  mtl:
+  transformers:
+  unordered-containers: ">= 0.2.20"
 
 ghc-options:
   - -Wall
   - -Werror
 
-default-language: GHC2024
+language: GHC2024
 
 default-extensions:
   - BlockArguments
